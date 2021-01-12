@@ -67,6 +67,10 @@ class MRI_Dataset():
         self.initialize = True
     
     def __call__(self, base : str):
+        if not self.initialize:
+            raise Exception("Dataset has not been initialized")
+        if self.batchs_path_list[base] == []:
+            raise Exception(f"Dataset : {base} empty")
         for lr_path, hr_seg_path in self.batchs_path_list[base]:
             lr = np.load(lr_path)
             hr_seg = np.load(hr_seg_path)

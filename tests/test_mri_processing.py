@@ -7,7 +7,5 @@ def runtest(config, *args, **kwargs):
     hr, lr, scaling_factor = lr_from_hr(hr_file_path, (1.8, 1.8, 1.8), 0.05, contrast_value=0.5)
     lr.save_mri(normpath(join(DATA_EXAMPLE, "lr1010.nii.gz")))
     
-    create_patches()
-    
     print(hr, lr)
     print(scaling_factor)
