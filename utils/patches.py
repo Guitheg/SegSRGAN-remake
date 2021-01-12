@@ -34,10 +34,7 @@ def array_to_patches(arr, patch_shape=(3, 3, 3), extraction_step=1, normalizatio
       a copying operation to obtain a list of patches:
       result.reshape([-1] + list(patch_shape))
     """
-    print(arr.shape)
-    print(patch_shape, extraction_step)
     patches = extract_patches(arr, patch_shape, extraction_step)
-    print(patches.shape)
     patches = patches.reshape(-1, patch_shape[0], patch_shape[1], patch_shape[2])
     # patches = patches.reshape(patches.shape[0], -1)
     if normalization is True:
@@ -49,8 +46,9 @@ def array_to_patches(arr, patch_shape=(3, 3, 3), extraction_step=1, normalizatio
 
 def create_patches_from_mri(lr : MRI, hr : MRI, seg : MRI, patchsize : tuple, stride : int, normalization : bool = False):
   
-    # lr_patches_shape : (number_patches, patchsize[0], patchsize[1], patchsize[2])
+    # lr_patches_shape : (number_patches, 1, patchsize[0], patchsize[1], patchsize[2])
     lr_patches = array_to_patches(lr(), patch_shape=patchsize, extraction_step=stride, normalization=normalization)
+    lr_patches = np.reshape(lr_patches, (-1, 1, patchsize[0], patchsize[1], patchsize[2]))
     hr_patches = array_to_patches(hr(), patch_shape=patchsize, extraction_step=stride, normalization=normalization)
     seg_patches = array_to_patches(seg(), patch_shape=patchsize, extraction_step=stride, normalization=normalization)
     

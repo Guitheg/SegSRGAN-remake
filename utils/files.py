@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+import os
 from pandas import Series
 import pandas as pd
 from os.path import join, normpath
@@ -36,3 +37,10 @@ def get_hr_seg_filepath_list(mri_folder : str, csv_listfile_path : str, cfg : Co
                                           testdata_filespath_df.iterrows()))
 
     return train_hr_seg_filepath_list, val_hr_seg_filepath_list, test_hr_seg_filepath_list
+
+def get_and_create_dir(dirpath : str):
+    if os.path.isfile(dirpath):
+        raise Exception(f"{dirpath} is not a folder but a file")
+    if not os.path.isdir(dirpath):
+        os.makedirs(dirpath, exist_ok=True)
+    return os.path.normpath(dirpath) 

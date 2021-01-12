@@ -9,5 +9,9 @@ def runtest(config, *args, **kwargs):
     mri_folder = "data_example"
     csv_listfile_path = "data_example\exemple.csv"
     
-    dataset = MRI_Dataset(config, dataset_folder, mri_folder, csv_listfile_path, 10, (1,1,1), 16, 3, 0.5)
+    dataset = MRI_Dataset(config, dataset_folder, mri_folder, csv_listfile_path, batchsize=128, 
+                          lr_resolution=(1,1,1), patchsize=(16,16,16), step=4, percent_valmax=0.5)
     dataset.make_and_save_dataset_batchs()
+    
+    for lr, hr in dataset('Train'):
+        print(lr.shape, hr.shape)
