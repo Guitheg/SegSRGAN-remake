@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 from utils.files import get_environment
-from main import CONFIG_INI_FILEPATH
+from main import INIT_CONFIG_INI_FILEPATH, CONFIG_INI_FILEPATH
 import argparse
 import sys
 
@@ -12,7 +12,7 @@ def main():
     args = parser.parse_args()
     
     config = ConfigParser()
-    config.read(CONFIG_INI_FILEPATH)
+    config.read(INIT_CONFIG_INI_FILEPATH)
     
     (home_path, _, _,  _, _, _, _, _, _, _) = get_environment(args.home_folder, config)
     
