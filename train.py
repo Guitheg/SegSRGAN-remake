@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+import sys
 from dataset.dataset_manager import MRI_Dataset
 from utils.files import get_environment
 from model.segsrgan_model import SegSRGAN
@@ -8,6 +9,7 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--training_name", "-n", help="the training name, for recovering", required=True)
     parser.add_argument("--csv_name", "-csv", help="file path of the csv listing mri path", required=True)
     parser.add_argument("--batchsize", "-bs", help="batchsize of the training", default=32)
     parser.add_argument("--downscale_factor", "-lr", help="factor for downscaling hr image by. it's a tuple of 3. example : 0.5 0.5 0.5", nargs=3, required=True)
@@ -19,7 +21,7 @@ def main():
     config = ConfigParser()
     config.read(CONFIG_INI_FILEPATH)
     
-    print(f"train.py -csv {args.csv_name} -bs {args.batchsize} -lr {args.downscale_factor} -ps {args.patchsize} -st {args.step} --percent_valmax {args.percent_valmax}")
+    print(f"train.py -n {args.training_name} -csv {args.csv_name} -bs {args.batchsize} -lr {args.downscale_factor} -ps {args.patchsize} -st {args.step} --percent_valmax {args.percent_valmax}")
 
     home_folder = config.get('Path', 'Home')
     
@@ -36,6 +38,7 @@ def main():
     if not isfile(csv_listfile_path):
         raise Exception(f"{csv_listfile_path} unknown. you must put {args.csv_name} in {csv_repo_path} folder")
     
+    training_name = args.training_name
     batchsize = int(args.batchsize)
     patchsize = (int(args.patchsize[0]), int(args.patchsize[1]), int(args.patchsize[2]))
     lr_downscale_factor = (float(args.downscale_factor[0]), float(args.downscale_factor[1]), float(args.downscale_factor[2]))
@@ -58,10 +61,12 @@ def main():
     
     print("Training...")
     
-    segsrgan_trainer = SegSRGAN(checkpoint_repo_path,
+    segsrgan_trainer = SegSRGAN(name = training_name,
+                                checkpoints_folder=checkpoint_repo_path,
                                 shape=patchsize)
     
     print("fit:")
+    
     segsrgan_trainer.fit(dataset, 1)
     
 if __name__ == "__main__":

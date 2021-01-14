@@ -1,4 +1,5 @@
 
+from utils.files import get_and_create_dir
 from dataset.dataset_manager import MRI_Dataset
 from model.utils import LR_Adam, ReflectPadding3D, InstanceNormalization3D, Activation_SegSRGAN, gradient_penalty_loss, wasserstein_loss, charbonnier_loss
 import numpy as np
@@ -9,6 +10,7 @@ from keras.layers import Conv3D, Add, UpSampling3D, Activation
 from keras.optimizers import Adam
 from keras.initializers import lecun_normal
 import tensorflow as tf
+from os.path import join, normpath, isfile
 
 def resnet_blocks(input_res, kernel, name):
     gen_initializer = lecun_normal()
@@ -171,7 +173,8 @@ def segsrgan_discriminator_block(name : str, shape : tuple, kernel : int):
 
 class SegSRGAN():
     
-    def __init__(self, 
+    def __init__(self,
+                 name : str,
                  checkpoints_folder : str,
                  shape : tuple,
                  lambda_rec : float = 1,
@@ -189,13 +192,10 @@ class SegSRGAN():
         self.generator_trainer = self.make_generator_trainer(shape, lr_genmodel, lambda_adv, lambda_rec)
         self.discriminator_trainer = self.make_discriminator_trainer(shape, lr_dismodel, lambda_gp)
         
-        self.checkpoints_folder = checkpoints_folder
-        self.checkpoint_epoch = 0
-        self.checkpoint = tf.train.Checkpoint(  generator = self.generator_trainer,
-                                                discriminator = self.discriminator_trainer)
-        self.checkpoint_manager = tf.train.CheckpointManager(self.checkpoint, 
-                                                             directory=self.checkpoints_folder, 
-                                                             max_to_keep=max_checkpoints_to_keep)
+        self.checkpoints_folder = get_and_create_dir(normpath(join(checkpoints_folder, name)))
+        self.checkpoint_gen_path = join(self.checkpoints_folder, "generator")
+        self.checkpoint_dis_path = join(self.checkpoints_folder, "discriminator")
+
     def fit(self, 
             dataset : MRI_Dataset,
             n_epochs : int = 1,
@@ -203,16 +203,19 @@ class SegSRGAN():
         
         self._load_checkpoint()
         
-        for epoch in range(self.checkpoint_epoch, n_epochs):
+        for epoch in range(0, n_epochs):
             print(f"Epoch {epoch+1} / {n_epochs} : ")
             self._fit_one_epoch(dataset('Train'), *args, **kwargs)
-            self._save_checkpoint()    
+            self._save_checkpoint()
     
     def _load_checkpoint(self, *args, **kwargs):
-        self.checkpoint.restore(self.checkpoint_manager.latest_checkpoint)
+        if isfile(self.checkpoint_gen_path) and isfile(self.checkpoint_dis_path):
+            self.generator.load_weights(self.checkpoint_gen_path)
+            self.discriminator.load_weights(self.checkpoint_dis_path)
             
     def _save_checkpoint(self, *args, **kwargs):
-        self.checkpoint_manager.save()
+        self.generator.save_weights(self.checkpoint_gen_path)
+        self.discriminator.save_weights(self.checkpoint_dis_path)
     
     def make_generator_model(self, shape, gen_kernel, *args, **kwargs):
         return segsrgan_generator_block('Generator', shape, gen_kernel)
