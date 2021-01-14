@@ -19,6 +19,8 @@ def main():
     config = ConfigParser()
     config.read(CONFIG_INI_FILEPATH)
     
+    print(f"train.py -csv {args.csv_name} -bs {args.batchsize} -lr {args.downscale_factor} -ps {args.patchsize} -st {args.step} --percent_valmax {args.percent_valmax}")
+    
     home_folder = config.get('Path', 'Home')
     
     try: 
