@@ -15,11 +15,11 @@ class MRI_Dataset():
     
     def __init__(self,
                  config : ConfigParser,
-                 dataset_folder : str, 
+                 batch_folder : str, 
                  mri_folder : str,
                  csv_listfile_path : str,
                  batchsize : int,
-                 lr_resolution : tuple,
+                 lr_downscale_factor : tuple,
                  patchsize : Union[int, tuple],
                  step : int,
                  percent_valmax : float,
@@ -27,13 +27,13 @@ class MRI_Dataset():
         
         self.cfg = config
         
-        self.dataset_folder = dataset_folder
+        self.batch_folder = batch_folder
         self.mri_folder = mri_folder
         self.csv_listfile_path = csv_listfile_path
         
         self.batchsize = batchsize
                 
-        self.lr_resolution = lr_resolution
+        self.lr_downscale_factor = lr_downscale_factor
         if type(patchsize) == tuple:
             self.patchsize = patchsize
         else:
@@ -50,13 +50,13 @@ class MRI_Dataset():
         self.initialize = False
      
     def make_and_save_dataset_batchs(self, *args, **kwargs):
-        train_batch_folder_name = self.cfg.get('Paths','Train_batch')
-        val_batch_folder_name = self.cfg.get('Paths','Validatation_batch')
-        test_batch_folder_name = self.cfg.get('Paths','Test_Batch')
+        train_batch_folder_name = self.cfg.get('Batch_Path','Train_batch')
+        val_batch_folder_name = self.cfg.get('Batch_Path','Validatation_batch')
+        test_batch_folder_name = self.cfg.get('Batch_Path','Test_Batch')
         
-        train_batch_folder_path = get_and_create_dir(normpath(join(self.dataset_folder, train_batch_folder_name)))
-        val_batch_folder_path = get_and_create_dir(normpath(join(self.dataset_folder, val_batch_folder_name)))
-        test_batch_folder_path = get_and_create_dir(normpath(join(self.dataset_folder, test_batch_folder_name)))
+        train_batch_folder_path = get_and_create_dir(normpath(join(self.batch_folder, train_batch_folder_name)))
+        val_batch_folder_path = get_and_create_dir(normpath(join(self.batch_folder, val_batch_folder_name)))
+        test_batch_folder_path = get_and_create_dir(normpath(join(self.batch_folder, test_batch_folder_name)))
         
         train_fp_list, val_fp_list, test_fp_list = get_hr_seg_filepath_list(self.mri_folder, self.csv_listfile_path, self.cfg)
         
@@ -87,7 +87,7 @@ class MRI_Dataset():
         
         for data_hr, data_seg in data_filespath_list:
 
-            lr_img, hr_img, scaling_factor = lr_from_hr(data_hr, self.lr_resolution, self.percent_valmax)
+            lr_img, hr_img, scaling_factor = lr_from_hr(data_hr, self.lr_downscale_factor, self.percent_valmax)
             seg_img = read_seg(data_seg, scaling_factor)
             
             lr_gen_input, hr_seg_dis_input = create_patches_from_mri(lr_img, hr_img, seg_img, self.patchsize, self.step)

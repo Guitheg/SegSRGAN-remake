@@ -27,8 +27,6 @@ def wasserstein_loss(y_true, y_pred):
     Note that the nature of this loss means that it can be (and frequently will be) less than 0."""
     return K.mean(y_true * y_pred)
 
-
-
 class Activation_SegSRGAN(Layer):
     def __init__(self, int_channel=0 , seg_channel=1, activation='sigmoid', **kwargs):
         self.seg_channel = seg_channel
@@ -46,7 +44,7 @@ class Activation_SegSRGAN(Layer):
         if self.activation == 'sigmoid':
             segmentation = K.sigmoid(recent_input[:, self.seg_channel, :, :, :])
         else:
-            assert('Do not support')
+            raise Exception(f'do not support : {self.activation}')
         intensity = recent_input[:, self.int_channel, :, :, :]
         
         # Adding channel
@@ -176,7 +174,7 @@ class LR_Adam(Optimizer):
         
         # Multiplier for weights [0,2,4,6,...] and bias [1,3,5,7,...]
         if len(params) != len(self.lr_multipliers) : 
-            raise "Check Multipliers !" 
+            raise Exception("Check Multipliers !") 
         count_multipliers = 0
         
         for p, g, m, v in zip(params, grads, ms, vs):
