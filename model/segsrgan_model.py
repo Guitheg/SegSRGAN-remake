@@ -194,13 +194,13 @@ class SegSRGAN():
             dataset : MRI_Dataset,
             n_epochs : int = 1,
             *args, **kwargs):
-        print(f"GPU : {K.tensorflow_backend._get_available_gpus()}")
-        # self._load_checkpoint()
+        # print(f"GPU : {K.tensorflow_backend._get_available_gpus()}")
+        self._load_checkpoint()
         
-        # for epoch in range(0, n_epochs):
-        #     print(f"Epoch {epoch+1} / {n_epochs} : ")
-            # self._fit_one_epoch(dataset('Train'), *args, **kwargs)
-            # self._save_checkpoint()
+        for epoch in range(0, n_epochs):
+            print(f"Epoch {epoch+1} / {n_epochs} : ")
+            self._fit_one_epoch(dataset('Train'), *args, **kwargs)
+            self._save_checkpoint()
     
     def _load_checkpoint(self, *args, **kwargs):
         if isfile(self.checkpoint_gen_path) and isfile(self.checkpoint_dis_path):
