@@ -67,7 +67,7 @@ def main():
     
     print("fit:")
     
-    # segsrgan_trainer.fit(dataset, n_epochs=1)
+    segsrgan_trainer.fit(dataset, n_epochs=1)
     
 if __name__ == "__main__":
     main()
