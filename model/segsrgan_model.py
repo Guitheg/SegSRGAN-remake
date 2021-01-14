@@ -283,7 +283,7 @@ class SegSRGAN():
         dis_losses = []
         
         for idx_dis_step in range(n_critic):
-            print(f"{idx_dis_step} / n_critic")
+            print(f"{idx_dis_step} / {n_critic}")
             # Fake image from generator and Interpolated image generation : 
             epsilon = np.random.uniform(0, 1, size=(batchsize, 2, 1, 1, 1))
             batch_generated = self.generator.predict(batch_gen_inp)
@@ -301,8 +301,8 @@ class SegSRGAN():
         real = -np.ones([batchsize, 1], dtype=np.float32)
         
         # Train generator
-        gen_loss = self.generator_trainer.train_on_batch([batch_real],
-                                                         [real, batch_gen_inp])
+        gen_loss = self.generator_trainer.train_on_batch([batch_gen_inp],
+                                                         [real, batch_real])
         
         return gen_loss
                 
