@@ -16,12 +16,14 @@ def main():
     parser.add_argument("--patchsize", "-ps", help="tuple of the 3d patchsize. example : '16 16 16' ", required=True, nargs=3)
     parser.add_argument("--step", '-st', help="step/stride for patches construction", default=10)
     parser.add_argument('--percent_valmax', help="N trained on image on which we add gaussian noise with sigma equal to this % of val_max", default=0.03)
+    parser.add_argument('--n_epochs','-e', help="number of epochs", default=1)
+    
     args = parser.parse_args()
     
     config = ConfigParser()
     config.read(CONFIG_INI_FILEPATH)
     
-    print(f"train.py -n {args.training_name} -csv {args.csv_name} -bs {args.batchsize} -lr {args.downscale_factor} -ps {args.patchsize} -st {args.step} --percent_valmax {args.percent_valmax}")
+    print(f"train.py -n {args.training_name} -csv {args.csv_name} -bs {args.batchsize} -lr {args.downscale_factor} -ps {args.patchsize} -st {args.step} --percent_valmax {args.percent_valmax} -e {args.n_epochs}")
 
     home_folder = config.get('Path', 'Home')
     
@@ -44,6 +46,7 @@ def main():
     lr_downscale_factor = (float(args.downscale_factor[0]), float(args.downscale_factor[1]), float(args.downscale_factor[2]))
     step = int(args.step)
     percent_valmax = float(args.percent_valmax)
+    n_epochs = int(args.n_epochs)
     
     print("Preprocess and patches generation...")
     
@@ -67,7 +70,7 @@ def main():
     
     print("fit:")
     
-    segsrgan_trainer.fit(dataset, n_epochs=1)
+    segsrgan_trainer.fit(dataset, n_epochs=n_epochs)
     
 if __name__ == "__main__":
     main()
