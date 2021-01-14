@@ -20,8 +20,10 @@ def main():
     config.read(CONFIG_INI_FILEPATH)
     
     print(f"train.py -csv {args.csv_name} -bs {args.batchsize} -lr {args.downscale_factor} -ps {args.patchsize} -st {args.step} --percent_valmax {args.percent_valmax}")
-    
+
     home_folder = config.get('Path', 'Home')
+    
+    print(f"workspace : {home_folder}")
     
     try: 
         (home_folder, out_repo_path, training_repo_path, 

@@ -186,36 +186,34 @@ class SegSRGAN():
 
         self.discriminator = self.make_discriminator_model(shape, dis_kernel, *args, **kwargs)  
         self.generator = self.make_generator_model(shape, gen_kernel, *args, **kwargs)
-        
-        # self.checkpoints_folder = checkpoints_folder
-        # self.checkpoint_epoch = 0
-        # self.checkpoint = tf.train.Checkpoint(  epoch = self.checkpoint_epoch,
-        #                                         generator=self.generator,
-        #                                         discriminator=self.discriminator)
-        # self.checkpoint_manager = tf.train.CheckpointManager(self.checkpoint, 
-        #                                                      directory=self.checkpoints_folder, 
-        #                                                      max_to_keep=max_checkpoints_to_keep)
-        
         self.generator_trainer = self.make_generator_trainer(shape, lr_genmodel, lambda_adv, lambda_rec)
         self.discriminator_trainer = self.make_discriminator_trainer(shape, lr_dismodel, lambda_gp)
-    
+        
+        self.checkpoints_folder = checkpoints_folder
+        self.checkpoint_epoch = 0
+        self.checkpoint = tf.train.Checkpoint(  epoch = self.checkpoint_epoch,
+                                                generator = self.generator_trainer,
+                                                discriminator = self.discriminator_trainer)
+        self.checkpoint_manager = tf.train.CheckpointManager(self.checkpoint, 
+                                                             directory=self.checkpoints_folder, 
+                                                             max_to_keep=max_checkpoints_to_keep)
     def fit(self, 
             dataset : MRI_Dataset,
             n_epochs : int = 1,
             *args, **kwargs):
         
-        # self._load_checkpoint()
+        self._load_checkpoint()
         
-        for epoch in range(0, n_epochs):
+        for epoch in range(self.checkpoint_epoch, n_epochs):
             print(f"Epoch {epoch+1} / {n_epochs} : ")
             self._fit_one_epoch(dataset('Train'), *args, **kwargs)
-            # self._save_checkpoint()    
+            self._save_checkpoint()    
     
-    # def _load_checkpoint(self, *args, **kwargs):
-    #     self.checkpoint.restore(self.checkpoint_manager.latest_checkpoint)
+    def _load_checkpoint(self, *args, **kwargs):
+        self.checkpoint.restore(self.checkpoint_manager.latest_checkpoint)
             
-    # def _save_checkpoint(self, *args, **kwargs):
-    #     self.checkpoint_manager.save()
+    def _save_checkpoint(self, *args, **kwargs):
+        self.checkpoint_manager.save()
     
     def make_generator_model(self, shape, gen_kernel, *args, **kwargs):
         return segsrgan_generator_block('Generator', shape, gen_kernel)
@@ -225,6 +223,7 @@ class SegSRGAN():
         gen = self.generator(input_gen)
         fool = self.discriminator(gen)
         
+        # freezing discriminator weights
         all_parameters = 63
         generator_parameters = 52
         multipliers = np.ones(all_parameters)
