@@ -191,8 +191,7 @@ class SegSRGAN():
         
         self.checkpoints_folder = checkpoints_folder
         self.checkpoint_epoch = 0
-        self.checkpoint = tf.train.Checkpoint(  epoch = self.checkpoint_epoch,
-                                                generator = self.generator_trainer,
+        self.checkpoint = tf.train.Checkpoint(  generator = self.generator_trainer,
                                                 discriminator = self.discriminator_trainer)
         self.checkpoint_manager = tf.train.CheckpointManager(self.checkpoint, 
                                                              directory=self.checkpoints_folder, 
