@@ -10,6 +10,7 @@ from keras.layers import Conv3D, Add, UpSampling3D, Activation
 from keras.optimizers import Adam
 from keras.initializers import lecun_normal
 import tensorflow as tf
+from keras import backend as K
 from os.path import join, normpath, isfile
 
 def resnet_blocks(input_res, kernel, name):
@@ -118,7 +119,6 @@ def segsrgan_discriminator_block(name : str, shape : tuple, kernel : int):
                     name=name+'_conv_dis_1')(inputs)
     disnet = LeakyReLU(0.01)(disnet)
     
-    print(disnet)
     # Hidden 1 : 32
     disnet = Conv3D(kernel*2, 4, strides=2, 
                     padding = 'same',
@@ -126,8 +126,6 @@ def segsrgan_discriminator_block(name : str, shape : tuple, kernel : int):
                     data_format='channels_first', 
                     name=name+'_conv_dis_2')(disnet)
     disnet = LeakyReLU(0.01)(disnet) 
-    
-    print(disnet)
     
     # Hidden 2 : 16
     disnet = Conv3D(kernel*4, 4, strides=2, 
@@ -137,7 +135,6 @@ def segsrgan_discriminator_block(name : str, shape : tuple, kernel : int):
                     name=name+'_conv_dis_3')(disnet)
     disnet = LeakyReLU(0.01)(disnet)
     
-    print(disnet)
     
     # Hidden 3 : 8
     disnet = Conv3D(kernel*8, 4, strides=2, 
@@ -147,7 +144,6 @@ def segsrgan_discriminator_block(name : str, shape : tuple, kernel : int):
                     name=name+'_conv_dis_4')(disnet)
     disnet = LeakyReLU(0.01)(disnet)
     
-    print(disnet)
     
     # Hidden 4 : 4
     disnet = Conv3D(kernel*16, 4, strides=2, 
@@ -156,8 +152,6 @@ def segsrgan_discriminator_block(name : str, shape : tuple, kernel : int):
                     data_format='channels_first', 
                     name=name+'_conv_dis_5')(disnet)
     disnet = LeakyReLU(0.01)(disnet)
-    
-    print(disnet)
     
     # Decision : 2
     decision = Conv3D(1, 2, strides=1, 
@@ -200,7 +194,7 @@ class SegSRGAN():
             dataset : MRI_Dataset,
             n_epochs : int = 1,
             *args, **kwargs):
-        
+        print(f"GPU : {K.tensorflow_backend._get_available_gpus()}")
         self._load_checkpoint()
         
         for epoch in range(0, n_epochs):
