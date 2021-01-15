@@ -3,7 +3,6 @@
 import argparse
 from configparser import ConfigParser
 import sys
-from typing import get_origin
 from utils.mri import MRI
 
 import numpy as np
