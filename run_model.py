@@ -84,17 +84,12 @@ def main():
     np.save(join(output_folder, "seg.npy"), array_seg)
     print(array_sr.shape)
     
-    (x, y, z) = mri.get_resolution()
-    new_res = (x/0.8, y/0.8, z/0.8)
-    
-    print(new_res)
-    
     sr = MRI()
-    sr.load_from_array(array_sr, new_res, mri.get_origin(), mri.get_direction())
+    sr.load_from_array(array_sr, (0.35000091791152954, 0.3472222089767456, 0.3472222089767456), mri.get_origin(), mri.get_direction())
     sr.save_mri(join(output_folder, "sr.nii.gz"))
     
     seg = MRI()
-    seg.load_from_array(array_seg, new_res, mri.get_origin(), mri.get_direction())
+    seg.load_from_array(array_seg, (0.35000091791152954, 0.3472222089767456, 0.3472222089767456), mri.get_origin(), mri.get_direction())
     seg.save_mri(join(output_folder, "seg.nii.gz"))
     
     sys.exit(0)
