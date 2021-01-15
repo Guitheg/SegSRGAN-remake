@@ -29,7 +29,7 @@ def visualiser(img_data : np.ndarray, axis : int, number : Union[float, int], sh
     if show == True:
         plt.show()
     
-def visualiser_n_img(list_img : list, axis:int, number:float, *args, **kwargs):
+def visualiser_n_img(list_img : list, axis:int, number:float, live_mode=True, *args, **kwargs):
     """Visualisation simultanée d'image 3d provenant de .nii
 
     Args:
@@ -41,6 +41,9 @@ def visualiser_n_img(list_img : list, axis:int, number:float, *args, **kwargs):
     fig = plt.figure(1)
     n_img = len(list_img)
     for i, img in enumerate(list_img):
-        fig.add_subplot(1, n_img, i+1)
+        if not live_mode:
+            fig.add_subplot(1, n_img, i+1)
+        else:
+            plt.pause(0.01)
         visualiser(img, axis, number, show=False, *args, **kwargs)
     plt.show()
