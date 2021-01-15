@@ -83,7 +83,7 @@ def main():
     np.save(join(output_folder, "sr.npy"), array_sr)
     np.save(join(output_folder, "seg.npy"), array_seg)
     print(array_sr.shape)
-    
+    print(mri.get_resolution(),"-> (0.35000091791152954, 0.3472222089767456, 0.3472222089767456)")
     sr = MRI()
     sr.load_from_array(array_sr, (0.35000091791152954, 0.3472222089767456, 0.3472222089767456), mri.get_origin(), mri.get_direction())
     sr.save_mri(join(output_folder, "sr.nii.gz"))

@@ -8,7 +8,6 @@ from utils.patches import array_to_patches, create_patches_from_mri, make_a_patc
 from os.path import normpath, join
 
 
-    
 def runtest(config, *args, **kwargs):
     tr, va, te = get_hr_seg_filepath_list(DATA_EXAMPLE, normpath(join(DATA_EXAMPLE, "exemple.csv")), config)
     lr_hr_seg_mri_list = []

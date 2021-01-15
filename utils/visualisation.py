@@ -47,3 +47,22 @@ def visualiser_n_img(list_img : list, axis:int, number:float, live_mode=True, *a
             plt.pause(0.01)
         visualiser(img, axis, number, show=False, *args, **kwargs)
     plt.show()
+    
+def compare_n_img(list_img1 : list, list_img2 : list, axis:int, number:float, live_mode=True, *args, **kwargs):
+    """Visualisation simultanée d'image 3d provenant de .nii
+
+    Args:
+        list_img (list<nd.array>): [list des images 3d .nii sous tableau numpy]
+        axis ([int]): [le numéro de l'axe (de 0 à 2)]
+        number ([float]): [le pourcentage correspondant à la position de la tranche à afficher]
+    """
+
+    fig = plt.figure(1)
+    for i, (img1, img2) in enumerate(zip(list_img1, list_img2)):
+        fig.add_subplot(1, 2, 1)
+        visualiser(img1, axis, number, show=False, *args, **kwargs)
+        fig.add_subplot(1, 2, 2)
+        visualiser(img2, axis, number, show=False, *args, **kwargs)
+        plt.pause(0.01)
+        
+    plt.show()
