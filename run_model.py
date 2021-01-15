@@ -69,7 +69,7 @@ def main():
     # Load models
     segsrgan = SegSRGAN(name, model_path, shape=patchsize)
     
-    sr_seg_patches = segsrgan.predict(np.array([mri_patches[0]]))
+    sr_seg_patches = segsrgan.predict(mri_patches)
     
     print("Prediction ok")
     
