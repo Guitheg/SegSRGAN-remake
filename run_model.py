@@ -78,6 +78,10 @@ def main():
     
     array_sr = patches_to_array(sr_patches, mri().shape, patchsize)
     array_seg = patches_to_array(seg_patches, mri().shape, patchsize)
+    
+    np.save(join(output_folder, "patches.npy"), sr_seg_patches)
+    np.save(join(output_folder, "sr.npy"), array_sr)
+    np.save(join(output_folder, "seg.npy"), array_seg)
     print(array_sr.shape)
     
     (x, y, z) = mri.get_resolution()
