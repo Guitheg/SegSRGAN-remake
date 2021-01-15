@@ -65,7 +65,7 @@ def main():
     mri = read_mri(mri_filepath)
     mri_patches = array_to_patches(mri(), patchsize, step)
     mri_patches = np.reshape(mri_patches, (-1, 1, patchsize[0], patchsize[1], patchsize[2]))
-    
+    np.save(join(output_folder, "mri_patches.npy"), mri_patches)
     # Load models
     segsrgan = SegSRGAN(name, model_path, shape=patchsize)
     
