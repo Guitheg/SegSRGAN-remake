@@ -1,6 +1,7 @@
 
 from utils.mri import MRI
 import numpy as np
+from itertools import product
 from sklearn.feature_extraction.image import extract_patches
 
 
@@ -43,7 +44,32 @@ def array_to_patches(arr, patch_shape=(3, 3, 3), extraction_step=1, normalizatio
     print('%.2d patches have been extracted' % patches.shape[0])
     return patches
 
-
+def patches_to_array(patches, array_shape, patch_shape=(3, 3, 3)):
+    """
+    Swicth from the patches to the image
+    :param patches: patches array
+    :param array_shape: shape of the array
+    :param patch_shape: shape of the patches
+    :return: array
+    """
+    # Adapted from 2D reconstruction from sklearn
+    # https://github.com/scikit-learn/scikit-learn/blob/51a765a/sklearn/feature_extraction/image.py
+    # SyntaxError: non-default argument follows default argument : exchange "array_shape" and "patch_shape"
+    patches = patches.reshape(len(patches),*patch_shape)
+    i_x, i_y, i_z = array_shape
+    p_x, p_y, p_z = patch_shape
+    array = np.zeros(array_shape)
+    # compute the dimensions of the patches array
+    n_x = i_x - p_x + 1
+    n_y = i_y - p_y + 1
+    n_z = i_z - p_z + 1
+    for p, (i, j, k) in zip(patches, product(range(n_x), range(n_y), range(n_z))):
+        array[i:i + p_x, j:j + p_y, k:k + p_z] += p
+  
+    for (i, j, k) in product(range(i_x), range(i_y), range(i_z)):
+        array[i, j, k] /= float(min(i + 1, p_x, i_x - i) * min(j + 1, p_y, i_y - j) * min(k + 1, p_z, i_z - k))
+    return array
+  
 def create_patches_from_mri(lr : MRI, hr : MRI, seg : MRI, patchsize : tuple, stride : int, normalization : bool = False):
   
     # lr_patches_shape : (number_patches, 1, patchsize[0], patchsize[1], patchsize[2])

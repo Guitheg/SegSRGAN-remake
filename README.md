@@ -20,3 +20,9 @@ François Rousseau 2
 3 LMR - Laboratoire de Mathématiques de Reims  
 4 Service de médecine néonatale et réanimation pédiatrique, CHU de Reims  
 5 Lab-STICC - Laboratoire des sciences et techniques de l'information, de la communication et de la connaissance  
+
+
+## Utilisation :  
+
+run_model.py :  
+> python run_model.py -n run_model -f D:\Projets\srm4bmri\dataset\1010\hr1010.nii.gz -o D:\Projets\srm4bmri\outputs\results -m D:\\Projets\\srm4bmri\\training_folder\\checkpoints\\training_10_epochs\\ -ps 64 64 64

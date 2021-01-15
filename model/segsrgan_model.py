@@ -190,6 +190,11 @@ class SegSRGAN():
         self.checkpoint_gen_path = join(self.checkpoints_folder, "generator")
         self.checkpoint_dis_path = join(self.checkpoints_folder, "discriminator")
 
+    def predict(self, patches):
+        self._load_checkpoint()
+        sr_seg = self.generator.predict(patches)
+        return sr_seg
+
     def fit(self, 
             dataset : MRI_Dataset,
             n_epochs : int = 1,
@@ -206,7 +211,7 @@ class SegSRGAN():
         if isfile(self.checkpoint_gen_path) and isfile(self.checkpoint_dis_path):
             self.generator.load_weights(self.checkpoint_gen_path)
             self.discriminator.load_weights(self.checkpoint_dis_path)
-            
+      
     def _save_checkpoint(self, *args, **kwargs):
         self.generator.save_weights(self.checkpoint_gen_path)
         self.discriminator.save_weights(self.checkpoint_dis_path)

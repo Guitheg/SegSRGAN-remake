@@ -21,6 +21,8 @@ def main():
     args = parser.parse_args()
     
     config = ConfigParser()
+    if not isfile(CONFIG_INI_FILEPATH):
+        raise Exception("You must run 'build_env.py -f <home_folder>'")
     config.read(CONFIG_INI_FILEPATH)
     
     print(f"train.py -n {args.training_name} -csv {args.csv_name} -bs {args.batchsize} -lr {args.downscale_factor} -ps {args.patchsize} -st {args.step} --percent_valmax {args.percent_valmax} -e {args.n_epochs}")
