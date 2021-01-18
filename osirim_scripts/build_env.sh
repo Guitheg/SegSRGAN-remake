@@ -14,7 +14,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --gres-flags=enforce-binding
 
-container=/logiciels/containerCollections/CUDA11/tf2-NGC-20-06-py3.sif
+container=/logiciels/containerCollections/CUDA10/tf2-NGC-20-03-py3.sif
 python=$HOME/SSG/env/bin/python
 script=$HOME/SSG/src/SegSRGAN-remake/build_env.py
 
