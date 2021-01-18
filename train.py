@@ -74,7 +74,7 @@ def main():
     
     # print("Training...")
     
-    # segsrgan_trainer.train(dataset, n_epochs=n_epochs)
+    segsrgan_trainer.train(dataset, n_epochs=n_epochs)
     
 if __name__ == "__main__":
     main()
