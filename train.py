@@ -2,7 +2,7 @@
 # from model.mri_srgan import MRI_SRGAN
 import sys
 
-print(sys.modules)
+print([name for name in sys.modules])
 # from dataset.dataset_manager import MRI_Dataset
 # from utils.files import get_environment
 # from main import CONFIG_INI_FILEPATH
