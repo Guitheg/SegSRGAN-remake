@@ -56,17 +56,17 @@ def main():
     
     print("Preprocess and patches generation...")
     
-    # dataset = MRI_Dataset(config, 
-    #                       batch_folder=batch_repo_path, 
-    #                       mri_folder=dataset_repo_path,
-    #                       csv_listfile_path=csv_listfile_path,
-    #                       batchsize=batchsize,
-    #                       lr_downscale_factor=lr_downscale_factor,
-    #                       patchsize=patchsize,
-    #                       step=step,
-    #                       percent_valmax=percent_valmax
-    #                       )
-    # dataset.make_and_save_dataset_batchs()
+    dataset = MRI_Dataset(config, 
+                          batch_folder=batch_repo_path, 
+                          mri_folder=dataset_repo_path,
+                          csv_listfile_path=csv_listfile_path,
+                          batchsize=batchsize,
+                          lr_downscale_factor=lr_downscale_factor,
+                          patchsize=patchsize,
+                          step=step,
+                          percent_valmax=percent_valmax
+                          )
+    dataset.make_and_save_dataset_batchs()
     
     segsrgan_trainer = MRI_SRGAN(name = training_name,
                                  checkpoint_folder=checkpoint_repo_path,
