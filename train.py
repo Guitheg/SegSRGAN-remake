@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+from pkgutil import iter_modules
 from model.mri_srgan import MRI_SRGAN
 from dataset.dataset_manager import MRI_Dataset
 from utils.files import get_environment
@@ -7,6 +8,10 @@ from os.path import normpath, join, isfile
 import argparse
 
 def main():
+    
+    for i in iter_modules():
+        print(i.name)
+    
     parser = argparse.ArgumentParser()
     parser.add_argument("--training_name", "-n", help="the training name, for recovering", required=True)
     parser.add_argument("--csv_name", "-csv", help="file path of the csv listing mri path", required=True)
