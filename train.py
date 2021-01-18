@@ -65,7 +65,7 @@ def main():
     # dataset.make_and_save_dataset_batchs()
     
     segsrgan_trainer = MRI_SRGAN(name = training_name,
-                                 checkpoints_folder=checkpoint_repo_path,
+                                 checkpoint_folder=checkpoint_repo_path,
                                  logs_folder=indices_repo_path)
     
     # print("Training...")
