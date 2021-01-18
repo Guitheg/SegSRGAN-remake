@@ -15,7 +15,7 @@
 #SBATCH --gres-flags=enforce-binding
 
 container=/logiciels/containerCollections/CUDA11/tf2-NGC-20-06-py3.sif
-python=$HOME/envs/segsrgan/bin/python
+python=$HOME/SSG/env/bin/python
 script=$HOME/SSG/src/SegSRGAN-remake/run_model.py
 
 mri=/projets/srm4bmri/segsrgan/dataset/lr/lr1010.nii.gz
