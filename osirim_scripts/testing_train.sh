@@ -22,4 +22,4 @@ data=example.csv
 
 module purge
 module load singularity/3.0.3
-srun singularity exec ${container} python3 ${script}
+srun singularity exec ${container} ${python} ${script}
