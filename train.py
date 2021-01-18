@@ -1,9 +1,10 @@
 # from configparser import ConfigParser
 # from model.mri_srgan import MRI_SRGAN
+from pkgutil import iter_modules
 import sys
 
-for name in sys.modules:
-    print(name)
+for i in iter_modules():
+    print(i.name)
 # from dataset.dataset_manager import MRI_Dataset
 # from utils.files import get_environment
 # from main import CONFIG_INI_FILEPATH
