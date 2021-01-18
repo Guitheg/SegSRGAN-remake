@@ -1,10 +1,13 @@
 # source code from https://github.com/rousseau/deepBrain/
 
+import sys
+import time
 from tensorflow.python.ops import array_ops
-from keras.engine.topology import Layer
-from keras.optimizers import Optimizer
-from keras.legacy import interfaces
-import keras.backend as K
+from tensorflow.keras.layers import Layer
+from tensorflow.keras.optimizers import Optimizer
+# from tensorflow.keras.legacy import interfaces
+from shutil import get_terminal_size
+import tensorflow.keras.backend as K
 import numpy as np
 
 def charbonnier_loss(y_true, y_pred):
@@ -125,90 +128,90 @@ class ReflectPadding3D(Layer):
         config = {'padding': self.padding}
         base_config = super(ReflectPadding3D, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
+  
+# class LR_Adam(Optimizer):
+#     """
+#     https://ksaluja15.github.io/Learning-Rate-Multipliers-in-Keras/
     
-class LR_Adam(Optimizer):
-    """
-    https://ksaluja15.github.io/Learning-Rate-Multipliers-in-Keras/
-    
-    Adam optimizer.
-    Default parameters follow those provided in the original paper.
-    # Arguments
-        lr: float >= 0. Learning rate.
-        beta_1: float, 0 < beta < 1. Generally close to 1.
-        beta_2: float, 0 < beta < 1. Generally close to 1.
-        epsilon: float >= 0. Fuzz factor.
-        decay: float >= 0. Learning rate decay over each update.
-    # References
-        - [Adam - A Method for Stochastic Optimization](http://arxiv.org/abs/1412.6980v8)
-    """
+#     Adam optimizer.
+#     Default parameters follow those provided in the original paper.
+#     # Arguments
+#         lr: float >= 0. Learning rate.
+#         beta_1: float, 0 < beta < 1. Generally close to 1.
+#         beta_2: float, 0 < beta < 1. Generally close to 1.
+#         epsilon: float >= 0. Fuzz factor.
+#         decay: float >= 0. Learning rate decay over each update.
+#     # References
+#         - [Adam - A Method for Stochastic Optimization](http://arxiv.org/abs/1412.6980v8)
+#     """
 
-    def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999,
-                 epsilon=1e-8, decay=0., multipliers=None, **kwargs):
-        super(LR_Adam, self).__init__(**kwargs)
-        with K.name_scope(self.__class__.__name__):
-            self.iterations = K.variable(0, name='iterations')
-            self.lr = K.variable(lr, name='lr')
-            self.beta_1 = K.variable(beta_1, name='beta_1')
-            self.beta_2 = K.variable(beta_2, name='beta_2')
-            self.decay = K.variable(decay, name='decay')
-        self.epsilon = epsilon
-        self.initial_decay = decay
-        self.lr_multipliers = multipliers              # Multiplier for weights [0,2,4,6,...] and bias [1,3,5,7,...]
+#     def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999,
+#                  epsilon=1e-8, decay=0., multipliers=None, **kwargs):
+#         super(LR_Adam, self).__init__(**kwargs)
+#         with K.name_scope(self.__class__.__name__):
+#             self.iterations = K.variable(0, name='iterations')
+#             self.lr = K.variable(lr, name='lr')
+#             self.beta_1 = K.variable(beta_1, name='beta_1')
+#             self.beta_2 = K.variable(beta_2, name='beta_2')
+#             self.decay = K.variable(decay, name='decay')
+#         self.epsilon = epsilon
+#         self.initial_decay = decay
+#         self.lr_multipliers = multipliers              # Multiplier for weights [0,2,4,6,...] and bias [1,3,5,7,...]
         
-    @interfaces.legacy_get_updates_support
-    def get_updates(self, loss, params):
-        grads = self.get_gradients(loss, params)
-        self.updates = [K.update_add(self.iterations, 1)]
+#     @interfaces.legacy_get_updates_support
+#     def get_updates(self, loss, params):
+#         grads = self.get_gradients(loss, params)
+#         self.updates = [K.update_add(self.iterations, 1)]
 
-        lr = self.lr
-        if self.initial_decay > 0:
-            lr *= (1. / (1. + self.decay * self.iterations))
+#         lr = self.lr
+#         if self.initial_decay > 0:
+#             lr *= (1. / (1. + self.decay * self.iterations))
 
-        t = self.iterations + 1
-        lr_t = lr * (K.sqrt(1. - K.pow(self.beta_2, t)) /
-                     (1. - K.pow(self.beta_1, t)))
+#         t = self.iterations + 1
+#         lr_t = lr * (K.sqrt(1. - K.pow(self.beta_2, t)) /
+#                      (1. - K.pow(self.beta_1, t)))
 
-        ms = [K.zeros(K.get_variable_shape(p), dtype=K.dtype(p)) for p in params]
-        vs = [K.zeros(K.get_variable_shape(p), dtype=K.dtype(p)) for p in params]
-        self.weights = [self.iterations] + ms + vs
+#         ms = [K.zeros(K.get_variable_shape(p), dtype=K.dtype(p)) for p in params]
+#         vs = [K.zeros(K.get_variable_shape(p), dtype=K.dtype(p)) for p in params]
+#         self.weights = [self.iterations] + ms + vs
         
-        # Multiplier for weights [0,2,4,6,...] and bias [1,3,5,7,...]
-        if len(params) != len(self.lr_multipliers) : 
-            raise Exception("Check Multipliers !") 
-        count_multipliers = 0
+#         # Multiplier for weights [0,2,4,6,...] and bias [1,3,5,7,...]
+#         if len(params) != len(self.lr_multipliers) : 
+#             raise Exception("Check Multipliers !") 
+#         count_multipliers = 0
         
-        for p, g, m, v in zip(params, grads, ms, vs):
+#         for p, g, m, v in zip(params, grads, ms, vs):
 
-            # Multiplier for weights [0,2,4,6,...] and bias [1,3,5,7,...]
-            if self.lr_multipliers is None:
-                new_lr = lr_t     
-            else:
-                new_lr = lr_t * self.lr_multipliers[count_multipliers]
-                count_multipliers += 1
+#             # Multiplier for weights [0,2,4,6,...] and bias [1,3,5,7,...]
+#             if self.lr_multipliers is None:
+#                 new_lr = lr_t     
+#             else:
+#                 new_lr = lr_t * self.lr_multipliers[count_multipliers]
+#                 count_multipliers += 1
                            
-            m_t = (self.beta_1 * m) + (1. - self.beta_1) * g
-            v_t = (self.beta_2 * v) + (1. - self.beta_2) * K.square(g)
-            p_t = p - new_lr * m_t / (K.sqrt(v_t) + self.epsilon)
+#             m_t = (self.beta_1 * m) + (1. - self.beta_1) * g
+#             v_t = (self.beta_2 * v) + (1. - self.beta_2) * K.square(g)
+#             p_t = p - new_lr * m_t / (K.sqrt(v_t) + self.epsilon)
 
-            self.updates.append(K.update(m, m_t))
-            self.updates.append(K.update(v, v_t))
-            new_p = p_t
+#             self.updates.append(K.update(m, m_t))
+#             self.updates.append(K.update(v, v_t))
+#             new_p = p_t
 
-            # Apply constraints.
-            if getattr(p, 'constraint', None) is not None:
-                new_p = p.constraint(new_p)
+#             # Apply constraints.
+#             if getattr(p, 'constraint', None) is not None:
+#                 new_p = p.constraint(new_p)
 
-            self.updates.append(K.update(p, new_p))
-        return self.updates
+#             self.updates.append(K.update(p, new_p))
+#         return self.updates
 
-    def get_config(self):
-        config = {'lr': float(K.get_value(self.lr)),
-                  'beta_1': float(K.get_value(self.beta_1)),
-                  'beta_2': float(K.get_value(self.beta_2)),
-                  'decay': float(K.get_value(self.decay)),
-                  'epsilon': self.epsilon}
-        base_config = super(LR_Adam, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+#     def get_config(self):
+#         config = {'lr': float(K.get_value(self.lr)),
+#                   'beta_1': float(K.get_value(self.beta_1)),
+#                   'beta_2': float(K.get_value(self.beta_2)),
+#                   'decay': float(K.get_value(self.decay)),
+#                   'epsilon': self.epsilon}
+#         base_config = super(LR_Adam, self).get_config()
+#         return dict(list(base_config.items()) + list(config.items()))
 
 def gradient_penalty_loss(y_true, y_pred, averaged_samples, gradient_penalty_weight):
     """Calculates the gradient penalty loss for a batch of "averaged" samples.
@@ -240,3 +243,52 @@ def gradient_penalty_loss(y_true, y_pred, averaged_samples, gradient_penalty_wei
     gradient_penalty = gradient_penalty_weight * K.square(1 - gradient_l2_norm)
     # return the mean as loss over all the batch samples
     return K.mean(gradient_penalty)
+
+class ProgressBar(object):
+    '''A progress bar which can print the progress
+    modified from https://github.com/hellock/cvbase/blob/master/cvbase/progress.py
+    '''
+
+    def __init__(self, task_num=0, bar_width=50, start=True):
+        self.task_num = task_num
+        max_bar_width = self._get_max_bar_width()
+        self.bar_width = (bar_width if bar_width <= max_bar_width else max_bar_width)
+        self.completed = 0
+        if start:
+            self.start()
+
+    def _get_max_bar_width(self):
+        terminal_width, _ = get_terminal_size()
+        max_bar_width = min(int(terminal_width * 0.6), terminal_width - 50)
+        if max_bar_width < 10:
+            print('terminal width is too small ({}), please consider widen the terminal for better '
+                  'progressbar visualization'.format(terminal_width))
+            max_bar_width = 10
+        return max_bar_width
+
+    def start(self):
+        if self.task_num > 0:
+            sys.stdout.write('[{}] 0/{}, elapsed: 0s, ETA:\n{}\n'.format(
+                ' ' * self.bar_width, self.task_num, 'Start...'))
+        else:
+            sys.stdout.write('completed: 0, elapsed: 0s')
+        sys.stdout.flush()
+        self.start_time = time.time()
+
+    def update(self, msg='In progress...'):
+        self.completed += 1
+        elapsed = time.time() - self.start_time + 1e-9
+        fps = self.completed / elapsed
+        if self.task_num > 0:
+            percentage = self.completed / float(self.task_num)
+            eta = int(elapsed * (1 - percentage) / percentage + 0.5)
+            mark_width = int(self.bar_width * percentage)
+            bar_chars = '>' * mark_width + '-' * (self.bar_width - mark_width)
+            sys.stdout.write('\033[2F')  # cursor up 2 lines
+            sys.stdout.write('\033[J')  # clean the output (remove extra chars since last display)
+            sys.stdout.write('[{}] {}/{}, {:.1f} task/s, elapsed: {}s, ETA: {:5}s\n{}\n'.format(
+                bar_chars, self.completed, self.task_num, fps, int(elapsed + 0.5), eta, msg))
+        else:
+            sys.stdout.write('completed: {}, elapsed: {}s, {:.1f} tasks/s'.format(
+                self.completed, int(elapsed + 0.5), fps))
+        sys.stdout.flush()

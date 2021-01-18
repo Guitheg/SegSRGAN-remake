@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+from model.mri_srgan import MRI_SRGAN
 import sys
 from dataset.dataset_manager import MRI_Dataset
 from utils.files import get_environment
@@ -12,8 +13,8 @@ def main():
     parser.add_argument("--training_name", "-n", help="the training name, for recovering", required=True)
     parser.add_argument("--csv_name", "-csv", help="file path of the csv listing mri path", required=True)
     parser.add_argument("--batchsize", "-bs", help="batchsize of the training", default=32)
-    parser.add_argument("--downscale_factor", "-lr", help="factor for downscaling hr image by. it's a tuple of 3. example : 0.5 0.5 0.5", nargs=3, required=True)
-    parser.add_argument("--patchsize", "-ps", help="tuple of the 3d patchsize. example : '16 16 16' ", required=True, nargs=3)
+    parser.add_argument("--downscale_factor", "-lr", help="factor for downscaling hr image by. it's a tuple of 3. example : 0.5 0.5 0.5", nargs=3, required=True, default=(2,2,2))
+    parser.add_argument("--patchsize", "-ps", help="tuple of the 3d patchsize. example : '16 16 16' ", required=True, nargs=3, default=(32, 32, 32))
     parser.add_argument("--step", '-st', help="step/stride for patches construction", default=10)
     parser.add_argument('--percent_valmax', help="N trained on image on which we add gaussian noise with sigma equal to this % of val_max", default=0.03)
     parser.add_argument('--n_epochs','-e', help="number of epochs", default=1)
@@ -52,27 +53,25 @@ def main():
     
     print("Preprocess and patches generation...")
     
-    dataset = MRI_Dataset(config, 
-                          batch_folder=batch_repo_path, 
-                          mri_folder=dataset_repo_path,
-                          csv_listfile_path=csv_listfile_path,
-                          batchsize=batchsize,
-                          lr_downscale_factor=lr_downscale_factor,
-                          patchsize=patchsize,
-                          step=step,
-                          percent_valmax=percent_valmax
-                          )
-    dataset.make_and_save_dataset_batchs()
+    # dataset = MRI_Dataset(config, 
+    #                       batch_folder=batch_repo_path, 
+    #                       mri_folder=dataset_repo_path,
+    #                       csv_listfile_path=csv_listfile_path,
+    #                       batchsize=batchsize,
+    #                       lr_downscale_factor=lr_downscale_factor,
+    #                       patchsize=patchsize,
+    #                       step=step,
+    #                       percent_valmax=percent_valmax
+    #                       )
+    # dataset.make_and_save_dataset_batchs()
     
-    print("Training...")
+    segsrgan_trainer = MRI_SRGAN(name = training_name,
+                                 checkpoints_folder=checkpoint_repo_path,
+                                 logs_folder=indices_repo_path)
     
-    segsrgan_trainer = SegSRGAN(name = training_name,
-                                checkpoints_folder=checkpoint_repo_path,
-                                shape=patchsize)
+    # print("Training...")
     
-    print("fit:")
-    
-    segsrgan_trainer.fit(dataset, n_epochs=n_epochs)
+    # segsrgan_trainer.train(dataset, n_epochs=n_epochs)
     
 if __name__ == "__main__":
     main()

@@ -66,6 +66,13 @@ class MRI_Dataset():
         
         self.initialize = True
     
+    def __len__(self, base : str):
+        if not self.initialize:
+            raise Exception("Dataset has not been initialized")
+        if self.batchs_path_list[base] == []:
+            raise Exception(f"Dataset : {base} empty")
+        return len(self.batchs_path_list[base])
+    
     def __call__(self, base : str):
         if not self.initialize:
             raise Exception("Dataset has not been initialized")

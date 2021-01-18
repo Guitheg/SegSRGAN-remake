@@ -46,6 +46,7 @@ def lr_from_hr(hr_file_path : str,
                order : int = 3):
     
     hr = read_mri(hr_file_path)
+    print(scaling_factor)
     hr(modcrop3D(hr(), scaling_factor))
     
     lr_res = [a*b for a, b in zip(hr.get_resolution(), scaling_factor)]
