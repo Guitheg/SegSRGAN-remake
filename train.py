@@ -3,7 +3,6 @@ from model.mri_srgan import MRI_SRGAN
 import sys
 from dataset.dataset_manager import MRI_Dataset
 from utils.files import get_environment
-from model.segsrgan_model import SegSRGAN
 from main import CONFIG_INI_FILEPATH
 from os.path import normpath, join, isfile
 import argparse
