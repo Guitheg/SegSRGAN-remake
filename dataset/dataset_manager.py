@@ -72,9 +72,12 @@ class MRI_Dataset():
                 buffer.append(filepath)
                 if len(buffer) == 2:
                     # buffer[1] : lr img, buffer[0] : label_img 
+                    if buffer[1].split('_')[0] != buffer[0].split('_')[0]:
+                        raise Exception(f"{buffer[1]} does not have the same index with {buffer[0]}")
                     self.batchs_path_list[base].append((buffer[1], buffer[0]))
                     buffer = []
         self.initialize = True
+        
     def make_and_save_dataset_batchs(self, 
                                     mri_folder, 
                                     csv_listfile_path,  
