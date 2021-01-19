@@ -116,9 +116,8 @@ class MRI_SRGAN():
         else:
             print("Training from scratch.")
     
-    def train_step_generator(self, batch_lr, batch_hr_seg):
-        
-        batch_hr = batch_hr_seg[:, 0, :, :, :]
+    def train_step_generator(self, batch_lr, batch_hr):
+
         with tf.GradientTape(persistent=True) as tape:
             batch_sr = self.generator(batch_lr, training=True)
             
@@ -132,8 +131,8 @@ class MRI_SRGAN():
         
         return losses, total_loss
 
-    def train_step(self, batch_lr, batch_hr_seg):
-        return self.train_step_generator(batch_lr, batch_hr_seg)
+    def train_step(self, batch_lr, batch_hr):
+        return self.train_step_generator(batch_lr, batch_hr)
         
     def train(self, dataset, n_epochs):
         prog_bar = ProgressBar(n_epochs, self.checkpoint.epoch.numpy())
