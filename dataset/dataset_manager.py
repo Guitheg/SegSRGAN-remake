@@ -11,6 +11,9 @@ from utils.patches import create_patches_from_mri
 import numpy as np
 import pandas as pd
 
+LR_BATCH = "_batch_lr.npy"
+LABEL_BATCH = "_batch_label.npy"
+
 def reshape_buffer(buffer):
     return buffer.reshape(-1, buffer.shape[-4], buffer.shape[-3], buffer.shape[-2], buffer.shape[-1])
 
@@ -56,10 +59,14 @@ class MRI_Dataset():
             raise Exception("Dataset has not been initialized")
         if self.batchs_path_list[base] == []:
             raise Exception(f"Dataset : {base} empty")
-        for lr_path, hr_seg_path in self.batchs_path_list[base]:
+        for lr_path, label_path in self.batchs_path_list[base]:
+            print("lr:",lr_path)
+            print("hr:",label_path)
             lr = np.load(lr_path)
-            hr_seg = np.load(hr_seg_path)
-            yield lr, hr_seg
+            label = np.load(label_path)
+            print(lr.shape)
+            print(label.shape,"\n")
+            yield lr, label
     
     def __iter__(self, base : str):
         return self(base)
@@ -71,10 +78,15 @@ class MRI_Dataset():
                 filepath = join(self.list_batchs_folder[base], file)
                 buffer.append(filepath)
                 if len(buffer) == 2:
-                    # buffer[1] : lr img, buffer[0] : label_img 
                     if buffer[1].split('_')[0] != buffer[0].split('_')[0]:
                         raise Exception(f"{buffer[1]} does not have the same index with {buffer[0]}")
-                    self.batchs_path_list[base].append((buffer[1], buffer[0]))
+                    if buffer[0].endswith(LR_BATCH):
+                        lr_path = buffer[0]
+                        label_path = buffer[1]
+                    else:
+                        lr_path = buffer[1]
+                        label_path = buffer[0]
+                    self.batchs_path_list[base].append((lr_path, label_path))
                     buffer = []
         self.initialize = True
         
@@ -169,13 +181,13 @@ class MRI_Dataset():
             
             while buffer_lr.shape[0] >= batchsize:
                 
-                lr_batch_name = f"{batch_index:04d}_batch_lr.npy"
-                hr_seg_batch_name = f"{batch_index:04d}_batch_hr_seg.npy"
+                lr_batch_name = f"{batch_index:04d}{LR_BATCH}"
+                label_batch_name = f"{batch_index:04d}{LABEL_BATCH}"
                 lr_batch_path = normpath(join(data_base_folder, lr_batch_name))
-                hr_seg_batch_path = normpath(join(data_base_folder, hr_seg_batch_name))
+                label_batch_path = normpath(join(data_base_folder, label_batch_name))
                 
                 np.save(lr_batch_path, buffer_lr[:batchsize])
-                np.save(hr_seg_batch_path, buffer_hr[:batchsize])
+                np.save(label_batch_path, buffer_hr[:batchsize])
                 
                 buffer_lr = buffer_lr[batchsize:]
                 buffer_hr = buffer_hr[batchsize:]
@@ -187,7 +199,7 @@ class MRI_Dataset():
                 
                 remaining_patch = buffer_lr.shape[0]
                 
-                self.batchs_path_list[base].append((lr_batch_path, hr_seg_batch_path))
+                self.batchs_path_list[base].append((lr_batch_path, label_batch_path))
         
         if remaining_patch > 0:
             
@@ -197,13 +209,13 @@ class MRI_Dataset():
             buffer_lr = reshape_buffer(buffer_lr)
             buffer_hr = reshape_buffer(buffer_hr)
                 
-            lr_batch_name = f"{batch_index:04d}_batch_lr.npy"
-            hr_seg_batch_name = f"{batch_index:04d}_batch_hr_seg.npy"
+            lr_batch_name = f"{batch_index:04d}{LR_BATCH}"
+            label_batch_name = f"{batch_index:04d}{LABEL_BATCH}"
             lr_batch_path = normpath(join(data_base_folder, lr_batch_name))
-            hr_seg_batch_path = normpath(join(data_base_folder, hr_seg_batch_name))
+            label_batch_path = normpath(join(data_base_folder, label_batch_name))
                 
             np.save(lr_batch_path, buffer_lr[:batchsize])
-            np.save(hr_seg_batch_path, buffer_hr[:batchsize])
+            np.save(label_batch_path, buffer_hr[:batchsize])
             
             buffer_lr = buffer_lr[remaining_patch:]
             buffer_hr = buffer_hr[remaining_patch:]
@@ -211,7 +223,7 @@ class MRI_Dataset():
             lr_gen_input_list = [buffer_lr]
             label_dis_input_list = [buffer_hr]
             
-            self.batchs_path_list[base].append((lr_batch_path, hr_seg_batch_path))
+            self.batchs_path_list[base].append((lr_batch_path, label_batch_path))
         
         # shuffle datas here
         

@@ -1,4 +1,6 @@
 
+from math import ceil
+import numpy as np
 from model.utils import charbonnier_loss, ProgressBar
 from layers.reflect_padding import ReflectPadding3D
 from layers.instance_normalization import InstanceNormalization3D
@@ -153,8 +155,8 @@ class MRI_SRGAN():
                 # first channel : hr
                 losses, total_loss = self.train_step_generator(lr, hr_seg)
                 prog_bar.update("loss={:.4f}".format(total_loss.numpy()))
-                
-                if step % (int(dataset.__len__('Train')//100)) == 0:    
+                print(int(ceil(dataset.__len__('Train')/100)))
+                if step % (int(ceil(dataset.__len__('Train')/100))) == 0:    
                     with self.summary_writer.as_default():
                         tf.summary.scalar('loss_G/total_loss', total_loss, step=step)
 
