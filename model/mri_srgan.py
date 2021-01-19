@@ -1,5 +1,7 @@
 
-from model.utils import ReflectPadding3D, charbonnier_loss, ProgressBar
+from model.utils import charbonnier_loss, ProgressBar
+from layers.reflect_padding import ReflectPadding3D
+from layers.instance_normalization import InstanceNormalization3D
 from os.path import join, normpath, isdir
 from utils.files import get_and_create_dir
 from tensorflow import keras
@@ -8,58 +10,65 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, LeakyReLU, Reshape, Conv3D, Add, UpSampling3D, Activation, ZeroPadding3D
 
-def resnet_blocks(input_res, kernel, name):
-    in_res_1 = ReflectPadding3D(padding=1)(input_res)
-    out_res_1 = Conv3D(kernel, 3, strides=1, name=name+'_conv_a', data_format='channels_first')(in_res_1)
-    out_res_1 = Activation('relu')(out_res_1)
+def resnet_blocks(input_res, kernel, name, initializer):
+    in_res_1 = ReflectPadding3D(padding=1, name=name+"_reflect_padding_a")(input_res)
+    out_res_1 = Conv3D(kernel, 3, strides=1, use_bias=False, name=name+'_conv_a', kernel_initializer=initializer, data_format='channels_first')(in_res_1)
+    out_res_1 = InstanceNormalization3D(name=name + '_norm_a')(out_res_1)
+    out_res_1 = Activation('relu', name=name + '_relu_a')(out_res_1)
     
-    out_res_2 = ReflectPadding3D(padding=1)(out_res_1)
-    out_res_2 = Conv3D(kernel, 3, strides=1, name=name+'_conv_b', data_format='channels_first')(out_res_2)
+    out_res_2 = ReflectPadding3D(padding=1, name=name+"_reflect_padding_b")(out_res_1)
+    out_res_2 = Conv3D(kernel, 3, strides=1, use_bias=False, name=name+'_conv_b', kernel_initializer=initializer, data_format='channels_first')(out_res_2)
+    out_res_2 = InstanceNormalization3D(name=name + '_norm_b')(out_res_2)
     out_res = Add()([out_res_2, input_res])
     return out_res
 
+def downsampling_block(inputs, n_channels, kernel_size, strides, padding, name, kernel_initializer):
+    output = ReflectPadding3D(padding=padding, name=name+"_reflect_padding")(inputs)
+    output = Conv3D(n_channels, kernel_size, strides=strides, use_bias=False, name=name+'_conv', kernel_initializer=kernel_initializer, data_format='channels_first')(output)
+    output = InstanceNormalization3D(name=name+'_norm')(output)
+    output = Activation('relu', name=name+"_relu")(output)
+    return output
+
+def upsampling_block(inputs, n_channels, kernel_size, strides, padding, name, kernel_initializer, upscale_factor):
+    output = UpSampling3D(size=upscale_factor, data_format='channels_first', name=name+"_upscale")(inputs)
+    output = ReflectPadding3D(padding=padding, name=name+"_reflect_padding")(output)
+    output = Conv3D(n_channels, kernel_size, strides=strides, use_bias=False, name=name+'_conv', kernel_initializer=kernel_initializer, data_format='channels_first')(output)
+    output = InstanceNormalization3D(name=name + '_norm')(output)
+    output = Activation('relu', name=name+"_relu")(output)
+    return output
+
 def make_generator_model(name : str, shape : tuple, kernel : int):
+    lecun_init = tf.keras.initializers.LecunNormal()
+
     inputs = Input(shape=(1, shape[0], shape[1], shape[2]))
-    size = shape[0]
+
     # Representation
-    gennet = ReflectPadding3D(padding=3)(inputs)
-    gennet = Conv3D(kernel, 7, strides=1, name=name+'_gen_conv1', data_format='channels_first')(inputs)
-    gennet = Activation('relu')(gennet)
+    gennet = downsampling_block(inputs, n_channels=kernel, kernel_size=7, strides=1, padding=3, name=name+"_downsample1", kernel_initializer=lecun_init)
 
     # # Downsampling 1
-    gennet = ReflectPadding3D(padding=1)(inputs)
-    gennet = Conv3D(kernel*2, 3, strides=2, name=name+'_gen_conv2', data_format='channels_first')(gennet)
-    gennet = Activation('relu')(gennet)
+    gennet = downsampling_block(gennet, n_channels=kernel*2, kernel_size=3, strides=2, padding=1, name=name+"_downsample2", kernel_initializer=lecun_init)
     
     # # Downsampling 2
-    gennet = ReflectPadding3D(padding=1)(inputs)
-    gennet = Conv3D(kernel*4, 3, strides=2, name=name+'_gen_conv3', data_format='channels_first')(gennet)
-    gennet = Activation('relu')(gennet)
+    gennet = downsampling_block(gennet, n_channels=kernel*4, kernel_size=3, strides=2, padding=1, name=name+"_downsample3", kernel_initializer=lecun_init)
             
     # # Resnet blocks : 6, 8*4 = 32
-    gennet = resnet_blocks(gennet, kernel*4, name=name+'_gen_block1')
-    gennet = resnet_blocks(gennet, kernel*4, name=name+'_gen_block2')
-    gennet = resnet_blocks(gennet, kernel*4, name=name+'_gen_block3')
-    gennet = resnet_blocks(gennet, kernel*4, name=name+'_gen_block4')
-    gennet = resnet_blocks(gennet, kernel*4, name=name+'_gen_block5')
-    gennet = resnet_blocks(gennet, kernel*4, name=name+'_gen_block6')
+    gennet = resnet_blocks(gennet, kernel*4, name=name+'_resblock1', initializer=lecun_init)
+    gennet = resnet_blocks(gennet, kernel*4, name=name+'_resblock2', initializer=lecun_init)
+    gennet = resnet_blocks(gennet, kernel*4, name=name+'_resblock3', initializer=lecun_init)
+    gennet = resnet_blocks(gennet, kernel*4, name=name+'_resblock4', initializer=lecun_init)
+    gennet = resnet_blocks(gennet, kernel*4, name=name+'_resblock5', initializer=lecun_init)
+    gennet = resnet_blocks(gennet, kernel*4, name=name+'_resblock6', initializer=lecun_init)
     
     # Upsampling 1
-    gennet = UpSampling3D(size=(2, 2, 2), data_format='channels_first')(gennet)
-    gennet = ReflectPadding3D(padding=1)(gennet)
-    gennet = Conv3D(kernel*2, 3, strides=1, name=name+'_gen_deconv1', data_format='channels_first')(gennet)
-    gennet = Activation('relu')(gennet)
+    gennet = upsampling_block(gennet, n_channels=kernel*2, kernel_size=3, strides=1, padding=1, name=name+"_upsample1", kernel_initializer=lecun_init, upscale_factor=(2, 2, 2))
     
     # Upsampling 2
-    gennet = UpSampling3D(size=(2, 2, 2), data_format='channels_first')(gennet)
-    gennet = ReflectPadding3D(padding=2)(gennet)
-    gennet = Conv3D(kernel, 3, strides=1, name=name+'_gen_deconv2', data_format='channels_first')(gennet)
-    gennet = Activation('relu')(gennet)
+    gennet = upsampling_block(gennet, n_channels=kernel, kernel_size=3, strides=1, padding=1, name=name+"_upsample2", kernel_initializer=lecun_init, upscale_factor=(2, 2, 2))
     
     # Reconstruction
-    gennet = ReflectPadding3D(padding=3)(gennet)
-    gennet = Conv3D(1, 9, strides=1, use_bias=False, name=name+'_gen_1conv', data_format='channels_first')(gennet)
-    gennet = Activation('relu')(gennet)
+    gennet = ReflectPadding3D(padding=3, name=name+'_reconstruction_reflect_padding')(gennet)
+    gennet = Conv3D(1, 7, strides=1, use_bias=False, name=name+'_reconstruction_conv', kernel_initializer=lecun_init, data_format='channels_first')(gennet)
+    gennet = Activation('sigmoid', name=name+'_reconstruction_sigmoid')(gennet)
     
     model = Model(inputs=inputs, outputs=gennet, name=name)
     return model
@@ -92,7 +101,7 @@ class MRI_SRGAN():
         
         self.optimizer_gen = keras.optimizers.Adam()
 
-        self.generator = make_generator_model("generator", (16, 16, 16), 4)
+        self.generator = make_generator_model("gen", (32, 32, 32), 4)
         self.generator.summary()
         
         

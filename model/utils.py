@@ -61,73 +61,9 @@ class Activation_SegSRGAN(Layer):
     def compute_output_shape(self, input_shapes):
         return input_shapes[0]
     
-class InstanceNormalization3D(Layer):
-    ''' Thanks for github.com/jayanthkoushik/neural-style 
-    and https://github.com/PiscesDream/CycleGAN-keras/blob/master/CycleGAN/layers/normalization.py'''
-    def __init__(self, **kwargs):
-        super(InstanceNormalization3D, self).__init__(**kwargs)
 
-    def build(self, input_shape):
-        self.scale = self.add_weight(name='scale', shape=(input_shape[1],), initializer="one", trainable=True)
-        self.shift = self.add_weight(name='shift', shape=(input_shape[1],), initializer="zero", trainable=True)
-        super(InstanceNormalization3D, self).build(input_shape)
 
-    def call(self, x):
-        def image_expand(tensor):
-            return K.expand_dims(K.expand_dims(K.expand_dims(tensor, -1), -1), -1)
 
-        def batch_image_expand(tensor):
-            return image_expand(K.expand_dims(tensor, 0))
-
-        hwk = K.cast(x.shape[2] * x.shape[3] * x.shape[4], K.floatx())
-        mu = K.sum(x, [-1, -2, -3]) / hwk
-        mu_vec = image_expand(mu) 
-        sig2 = K.sum(K.square(x - mu_vec), [-1, -2, -3]) / hwk
-        y = (x - mu_vec) / (K.sqrt(image_expand(sig2)) + K.epsilon())
-
-        scale = batch_image_expand(self.scale)
-        shift = batch_image_expand(self.shift)
-        return scale*y + shift 
-
-    def compute_output_shape(self, input_shape):
-        return input_shape
-
-class ReflectPadding3D(Layer):
-    def __init__(self, padding=1, **kwargs):
-        super(ReflectPadding3D, self).__init__(**kwargs)
-        self.padding = ((padding, padding), (padding, padding), (padding, padding))
-
-    def compute_output_shape(self, input_shape):
-        if input_shape[2] is not None:
-            dim1 = input_shape[2] + self.padding[0][0] + self.padding[0][1]
-        else:
-            dim1 = None
-        if input_shape[3] is not None:
-            dim2 = input_shape[3] + self.padding[1][0] + self.padding[1][1]
-        else:
-            dim2 = None
-        if input_shape[4] is not None:
-            dim3 = input_shape[4] + self.padding[2][0] + self.padding[2][1]
-        else:
-            dim3 = None
-        return (input_shape[0],
-                input_shape[1],
-                dim1,
-                dim2,
-                dim3)
-
-    def call(self, inputs):
-        pattern = [[0, 0], [0, 0], 
-                   [self.padding[0][0], self.padding[0][1]],
-                   [self.padding[1][0], self.padding[1][1]], 
-                   [self.padding[2][0], self.padding[2][1]]]
-            
-        return array_ops.pad(inputs, pattern, mode= "REFLECT")
-
-    def get_config(self):
-        config = {'padding': self.padding}
-        base_config = super(ReflectPadding3D, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
   
 # class LR_Adam(Optimizer):
 #     """
