@@ -13,7 +13,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset_name", "-n", help="the dataset name...", required=True)
     parser.add_argument("--csv_name", "-csv", help="file path of the csv listing mri path", required=True)
-    parser.add_argument("--batchsize", "-bs", help="batchsize of the training", default=32)
+    parser.add_argument("--batchsize", "-bs", help="batchsize of the training", default=128)
     parser.add_argument("--downscale_factor", "-lr", help="factor for downscaling hr image by. it's a tuple of 3. example : 0.5 0.5 0.5", nargs=3, default=(2,2,2))
     parser.add_argument("--patchsize", "-ps", help="tuple of the 3d patchsize. example : '16 16 16' ", nargs=3, default=(32, 32, 32))
     parser.add_argument("--step", '-st', help="step/stride for patches construction", default=4)
