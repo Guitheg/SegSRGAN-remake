@@ -18,8 +18,9 @@ container=/logiciels/containerCollections/CUDA10/tf2-NGC-20-03-py3.sif
 python=$HOME/SSG/env/bin/python
 script=$HOME/SSG/src/SegSRGAN-remake/train.py
 
-data=test_dataset
+training_name=testing_train
+dataset=test_dataset
 
 module purge
 module load singularity/3.0.3
-srun singularity exec ${container} ${python} ${script} -n testing_train -d ${test_dataset}
+srun singularity exec ${container} ${python} ${script} -n ${training_name} -d ${dataset} -e 2

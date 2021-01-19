@@ -8,9 +8,7 @@ from os.path import normpath, join, isfile, isdir
 import argparse
 
 def main():
-    
-    for i in iter_modules():
-        print(i.name)
+    print([i.name for i in iter_modules()])
     
     parser = argparse.ArgumentParser()
     parser.add_argument("--training_name", "-n", help="the training name, for recovering", required=True)
