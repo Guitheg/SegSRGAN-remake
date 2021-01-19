@@ -23,4 +23,4 @@ csv=test_csv
 
 module purge
 module load singularity/3.0.3
-srun singularity exec ${container} ${python} ${script} -d ${dataset_name} -csv ${csv} --save_lr
+srun singularity exec ${container} ${python} ${script} -n ${dataset_name} -csv ${csv} --save_lr
