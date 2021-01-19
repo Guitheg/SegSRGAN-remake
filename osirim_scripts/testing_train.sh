@@ -10,7 +10,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 
-#SBATCH --partition=GPUNodes
+#SBATCH --partition=RTX6000Node
 #SBATCH --gres=gpu:1
 #SBATCH --gres-flags=enforce-binding
 
