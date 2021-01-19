@@ -129,6 +129,7 @@ class MRI_SRGAN():
 
         with tf.GradientTape(persistent=True) as tape:
             batch_sr = self.generator(batch_lr, training=True)
+            print("batchlr:",batch_lr.shape," batchhr:",batch_hr.shape, "batchsr:", batch_sr.shape)
             
             losses = {}
             losses['charbonnier'] = charbonnier_loss(batch_hr, batch_sr)
