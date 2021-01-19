@@ -74,7 +74,7 @@ class MRI_Dataset():
     def load_dataset(self):
         buffer = []
         for base in self.batchs_path_list:
-            for file in os.listdir(self.list_batchs_folder[base]):
+            for file in sorted(os.listdir(self.list_batchs_folder[base])):
                 filepath = join(self.list_batchs_folder[base], file)
                 buffer.append(filepath)
                 if len(buffer) == 2:
