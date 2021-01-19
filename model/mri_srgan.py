@@ -80,6 +80,7 @@ class MRI_SRGAN():
     
     def __init__(self, name : str, 
                  checkpoint_folder : str,
+                 weight_folder : str,
                  logs_folder : str,
                  make_generator_model=make_generator_model,
                  make_discriminator_model=None,
@@ -96,6 +97,11 @@ class MRI_SRGAN():
         else:  
             self.checkpoint_folder = get_and_create_dir(normpath(join(checkpoint_folder, name)))
             
+        if not isdir(weight_folder):
+            raise Exception(f"Checkpoint's folder unknow : {weight_folder}")
+        else:  
+            self.weight_folder = get_and_create_dir(normpath(join(weight_folder, name)))
+            
         if not isdir(logs_folder):
             raise Exception(f"logs's folder unknow : {logs_folder}")
         else:  
@@ -107,7 +113,7 @@ class MRI_SRGAN():
         self.generator.summary()
         
         
-        self.checkpoint = tf.train.Checkpoint(epoch=tf.Variable(0, name='step'),
+        self.checkpoint = tf.train.Checkpoint(epoch=tf.Variable(0, name='epoch'),
                                               optimizer_G=self.optimizer_gen,
                                               model=self.generator)
         self.checkpoint_manager = tf.train.CheckpointManager(checkpoint=self.checkpoint,
@@ -131,7 +137,7 @@ class MRI_SRGAN():
 
         with tf.GradientTape(persistent=True) as tape:
             batch_sr = self.generator(batch_lr, training=True)
-            
+
             losses = {}
             losses['charbonnier'] = charbonnier_loss(batch_hr, batch_sr)
             
@@ -146,14 +152,13 @@ class MRI_SRGAN():
         return self.train_step_generator(batch_lr, batch_hr)
         
     def train(self, dataset, n_epochs):
-        prog_bar = ProgressBar(n_epochs, self.checkpoint.epoch.numpy())
         remaining_epochs = n_epochs - self.checkpoint.epoch.numpy()
         for _ in range(remaining_epochs):
             print(f"Epoch : {self.checkpoint.epoch.numpy()+1}/{n_epochs}")
             for step, (lr, hr_seg) in enumerate(dataset('Train')):
                 # first channel : hr
                 losses, total_loss = self.train_step_generator(lr, hr_seg)
-                prog_bar.update("loss={:.4f}".format(total_loss.numpy()))
+                print(f"Step : {step:04d}/{dataset.__len__('Train')} - total_loss : {total_loss:04f}")
                 if step % (int(ceil(dataset.__len__('Train')/100))) == 0:    
                     with self.summary_writer.as_default():
                         tf.summary.scalar('loss_G/total_loss', total_loss, step=step)
@@ -165,6 +170,8 @@ class MRI_SRGAN():
             print("\nSave ckpt file at {}".format(self.checkpoint_manager.latest_checkpoint))     
             self.checkpoint.epoch.assign_add(1)
             
+        self.generator.save_weights(join(self.weight_folder, self.name+".h5"))
+        print("\nSave weights file at {}".format(join(self.weight_folder, self.name+".h5")))
         print("Training done !") 
                 
                 

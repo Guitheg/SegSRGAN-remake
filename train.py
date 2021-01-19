@@ -51,6 +51,7 @@ def main():
     print(f"Logs_folder at : {join(indices_repo_path, training_name)}")
     segsrgan_trainer = MRI_SRGAN(name = training_name,
                                  checkpoint_folder=checkpoint_repo_path,
+                                 weight_folder=weights_repo_path,
                                  logs_folder=indices_repo_path)
     
     print("Training...")
