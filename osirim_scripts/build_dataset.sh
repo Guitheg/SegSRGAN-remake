@@ -19,7 +19,7 @@ python=$HOME/SSG/env/bin/python
 script=$HOME/SSG/src/SegSRGAN-remake/build_dataset.py
 
 dataset_name=test_dataset
-csv=test_csv
+csv=test_csv.csv
 
 module purge
 module load singularity/3.0.3
