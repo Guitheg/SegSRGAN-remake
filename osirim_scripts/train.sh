@@ -11,7 +11,7 @@
 #SBATCH --cpus-per-task=1
 
 #SBATCH --partition=GPUNodes
-#SBATCH --gres=gpu:4
+#SBATCH --gres=gpu:1
 #SBATCH --gres-flags=enforce-binding
 
 container=/logiciels/containerCollections/CUDA10/tf2-NGC-20-03-py3.sif
