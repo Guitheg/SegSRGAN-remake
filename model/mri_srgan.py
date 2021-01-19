@@ -147,7 +147,7 @@ class MRI_SRGAN():
         prog_bar = ProgressBar(n_epochs, self.checkpoint.epoch.numpy())
         remaining_epochs = n_epochs - self.checkpoint.epoch.numpy()
         for _ in range(remaining_epochs):
-            print(f"Epoch : {self.checkpoint.epoch.numpy()}/{n_epochs}")
+            print(f"Epoch : {self.checkpoint.epoch.numpy()+1}/{n_epochs}")
             for step, (lr, hr_seg) in enumerate(dataset('Train')):
                 # first channel : hr
                 losses, total_loss = self.train_step_generator(lr, hr_seg)
@@ -159,8 +159,6 @@ class MRI_SRGAN():
 
                         for k, l in losses.items():
                             tf.summary.scalar('loss_G/{}'.format(k), l, step=step)
-                            
-                        tf.summary.scalar('learning_rate_G', self.optimizer_gen.lr(step), step=step)
                         
             self.checkpoint_manager.save()
             print("\nSave ckpt file at {}".format(self.checkpoint_manager.latest_checkpoint))     
