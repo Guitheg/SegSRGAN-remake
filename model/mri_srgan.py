@@ -38,7 +38,7 @@ def upsampling_block(inputs, n_channels, kernel_size, strides, padding, name, ke
     return output
 
 def make_generator_model(name : str, shape : tuple, kernel : int):
-    lecun_init = tf.keras.initializers.LecunNormal()
+    lecun_init = tf.keras.initializers.lecun_normal()
 
     inputs = Input(shape=(1, shape[0], shape[1], shape[2]))
 
