@@ -60,12 +60,8 @@ class MRI_Dataset():
         if self.batchs_path_list[base] == []:
             raise Exception(f"Dataset : {base} empty")
         for lr_path, label_path in self.batchs_path_list[base]:
-            print("lr:",lr_path)
-            print("hr:",label_path)
             lr = np.load(lr_path)
             label = np.load(label_path)
-            print(lr.shape)
-            print(label.shape,"\n")
             yield lr, label
     
     def __iter__(self, base : str):
