@@ -99,4 +99,4 @@ class MRI(object):
         if self.sitk_instance is None:
             return "MRI not loaded"
         else:
-            return f"shape : {self.img_array.shape}, resolution : {self.resolution}, path : {self.filepath}\n"
+            return f"shape : {self.img_array.shape}, resolution : {self.resolution}, path : {self.filepath}"

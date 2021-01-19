@@ -1,8 +1,8 @@
 #!/bin/sh
 
-#SBATCH --job-name=TESTING_TRAIN
-#SBATCH --output=/projets/srm4bmri/outputs/TESTING_TRAIN.out
-#SBATCH --error=/projets/srm4bmri/outputs/TESTING_TRAIN.err
+#SBATCH --job-name=BUILD_DATASET
+#SBATCH --output=/projets/srm4bmri/outputs/BUILD_DATASET.out
+#SBATCH --error=/projets/srm4bmri/outputs/BUILD_DATASET.err
 
 #SBATCH --mail-type=END   
 #SBATCH --mail-user=guigobin@gmail.com
@@ -16,10 +16,11 @@
 
 container=/logiciels/containerCollections/CUDA10/tf2-NGC-20-03-py3.sif
 python=$HOME/SSG/env/bin/python
-script=$HOME/SSG/src/SegSRGAN-remake/train.py
+script=$HOME/SSG/src/SegSRGAN-remake/build_dataset.py
 
-data=test_dataset
+dataset_name=test_dataset
+csv=test_csv
 
 module purge
 module load singularity/3.0.3
-srun singularity exec ${container} ${python} ${script} -n testing_train -d ${test_dataset}
+srun singularity exec ${container} ${python} ${script} -d ${dataset_name} -csv ${csv} --save_lr

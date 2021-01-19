@@ -46,7 +46,6 @@ def lr_from_hr(hr_file_path : str,
                order : int = 3):
     
     hr = read_mri(hr_file_path)
-    print(scaling_factor)
     hr(modcrop3D(hr(), scaling_factor))
     
     lr_res = [a*b for a, b in zip(hr.get_resolution(), scaling_factor)]
@@ -80,7 +79,7 @@ def lr_from_hr(hr_file_path : str,
     if lr().shape != hr().shape:
         raise Exception(f"lr shape and hr shape are different : lr{lr().shape}, hr{hr().shape}")
 
-    return hr, lr, scaling_factor
+    return lr, hr, scaling_factor
 
 def read_seg(seg_file_path : str, scaling_factor : tuple):
     seg = read_mri(seg_file_path)

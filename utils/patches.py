@@ -70,7 +70,7 @@ def patches_to_array(patches, array_shape, patch_shape=(3, 3, 3)):
         array[i, j, k] /= float(min(i + 1, p_x, i_x - i) * min(j + 1, p_y, i_y - j) * min(k + 1, p_z, i_z - k))
     return array
   
-def create_patches_from_mri(lr : MRI, hr : MRI, seg : MRI, patchsize : tuple, stride : int, normalization : bool = False):
+def create_patches_from_mri(lr : MRI, hr : MRI, seg : MRI, patchsize : tuple, stride : int, normalization : bool = False, merge_hr_seg : bool = True):
   
     # lr_patches_shape : (number_patches, 1, patchsize[0], patchsize[1], patchsize[2])
     lr_patches = array_to_patches(lr(), patch_shape=patchsize, extraction_step=stride, normalization=normalization)
@@ -78,10 +78,18 @@ def create_patches_from_mri(lr : MRI, hr : MRI, seg : MRI, patchsize : tuple, st
     hr_patches = array_to_patches(hr(), patch_shape=patchsize, extraction_step=stride, normalization=normalization)
     seg_patches = array_to_patches(seg(), patch_shape=patchsize, extraction_step=stride, normalization=normalization)
     
-    # label_patches_shape : (number_patches, 2, patchsize[0], patchsize[1], patchsize[2])
-    label_patches = np.swapaxes(np.stack((hr_patches, seg_patches)),  0, 1)
+    if merge_hr_seg:
+        # label_patches_shape : (number_patches, 2, patchsize[0], patchsize[1], patchsize[2])
+        label_patches = concatenante_hr_seg(hr_patches, seg_patches)
+    else:
+        # label_patches_shape : (number_patches, 1, patchsize[0], patchsize[1], patchsize[2])
+        label_patches = np.reshape(hr_patches, (-1, 1, patchsize[0], patchsize[1], patchsize[2]))
     
     return lr_patches, label_patches
+
+def concatenante_hr_seg(hr_patches, seg_patches):
+    label_patches = np.swapaxes(np.stack((hr_patches, seg_patches)),  0, 1)
+    return label_patches
 
 def make_a_patches_dataset(mri_lr_hr_seg_list : list, patchsize : tuple, stride : int):
     dataset_lr_patches = []
