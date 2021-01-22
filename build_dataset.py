@@ -19,7 +19,7 @@ def main():
     parser.add_argument("--step", '-st', help="step/stride for patches construction", default=4)
     parser.add_argument('--percent_valmax', help="N trained on image on which we add gaussian noise with sigma equal to this % of val_max", default=0.03)
     parser.add_argument('--save_lr', help="if you want to save lr mri", action="store_true")
-    parser.add_argument('--merge_hr_seg', help="if you want to marge hr and segmentation for label", action="store_true")
+    parser.add_argument('--segmentation', help="if you want to marge hr and segmentation for label", action="store_true")
 
     args = parser.parse_args()
     
@@ -68,7 +68,7 @@ def main():
                                          step=step,
                                          percent_valmax=percent_valmax,
                                          save_lr = args.save_lr,
-                                         merge_hr_seg=args.merge_hr_seg)
+                                         segmentation=args.segmentation)
     
     print(f"Done !")
     print(f"Dataset create at : {batch_repo_path} with :\n*batchsize of : {batchsize}")
