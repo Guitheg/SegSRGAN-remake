@@ -153,8 +153,13 @@ class MRI_Dataset():
         lr_gen_input_list = []
         label_dis_input_list = []
         
-        for data_hr, data_seg in data_filespath_list:
-
+        for data in data_filespath_list:
+            if segmentation:
+                data_hr, data_seg = data
+            else:
+                data_hr = data
+                data_seg = None
+                
             lr_img, hr_img, scaling_factor = lr_from_hr(data_hr, lr_downscale_factor, percent_valmax)
             
             print(f"LR mri : {lr_img}")
