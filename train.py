@@ -1,5 +1,6 @@
 from configparser import ConfigParser
 from pkgutil import iter_modules
+from utils.mri_processing import read_mri
 from model.mri_srgan import MRI_SRGAN
 from dataset.dataset_manager import MRI_Dataset
 from utils.files import get_environment
@@ -66,7 +67,7 @@ def main():
     
     print("Training...")
     
-    segsrgan_trainer.train(dataset, n_epochs=n_epochs, mri_to_visualize=mri_to_test, output_dir=out_repo_path)
+    segsrgan_trainer.train(dataset, n_epochs=n_epochs, mri_to_visualize=read_mri(mri_to_test), output_dir=out_repo_path)
     
 if __name__ == "__main__":
     main()
