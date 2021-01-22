@@ -18,8 +18,8 @@ container=/logiciels/containerCollections/CUDA10/tf2-NGC-20-03-py3.sif
 python=$HOME/SSG/env/bin/python
 script=$HOME/SSG/src/SegSRGAN-remake/build_dataset.py
 
-dataset_name=3x1_dataset
-csv=3x1.csv
+dataset_name=complete_dataset
+csv=complete.csv
 
 module purge
 module load singularity/3.0.3
