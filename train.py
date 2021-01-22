@@ -67,7 +67,7 @@ def main():
     
     print("Training...")
     
-    segsrgan_trainer.train(dataset, n_epochs=n_epochs, mri_to_visualize=read_mri(mri_to_test), output_dir=out_repo_path)
+    segsrgan_trainer.train(dataset, n_epochs=n_epochs, mri_to_visualize=read_mri(mri_to_test), output_dir=result_repo_path)
     
 if __name__ == "__main__":
     main()
