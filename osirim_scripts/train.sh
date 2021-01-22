@@ -18,9 +18,10 @@ container=/logiciels/containerCollections/CUDA10/tf2-NGC-20-03-py3.sif
 python=$HOME/SSG/env/bin/python
 script=$HOME/SSG/src/SegSRGAN-remake/train.py
 
+mri_test=/projets/srm4bmri/segsrgan/training_folder/batchs/complete_dataset/LR_hr1010.nii.gz
 training_name=train_mri_srgan
-dataset=3x1_dataset
+dataset=complete_dataset
 
 module purge
 module load singularity/3.0.3
-srun singularity exec ${container} ${python} ${script} -n ${training_name} -d ${dataset} -e 10
+srun singularity exec ${container} ${python} ${script} -n ${training_name} -d ${dataset} -e 30 -t ${mri_test}
