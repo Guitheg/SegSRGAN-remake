@@ -168,6 +168,8 @@ class MRI_SRGAN():
         return self.train_step_generator(batch_lr, batch_hr)
         
     def train(self, dataset, n_epochs, mri_to_visualize=None, output_dir=None):
+        if output_dir:
+            output_dir = get_and_create_dir(join(output_dir, self.name))
         self.load_checkpoint()
         remaining_epochs = n_epochs - self.checkpoint.epoch.numpy()
         losses = []
@@ -187,7 +189,7 @@ class MRI_SRGAN():
                 if output_dir is None:
                     raise Exception("You should specify the directory of output")
                 sr_mri = test_by_patch(mri_to_visualize, self)
-                sr_mri.save_mri(join(output_dir, self.name, self.name+"_epoch_"+str(epoch_index+1)+"_SR_"+basename(mri_to_visualize.filepath)))
+                sr_mri.save_mri(join(output_dir, self.name+"_epoch_"+str(epoch_index+1)+"_SR_"+basename(mri_to_visualize.filepath)))
         self.generator.save_weights(join(self.weight_folder, self.name+".h5"))
         print("\nSave weights file at {}".format(join(self.weight_folder, self.name+".h5")))
         print("Training done !")
