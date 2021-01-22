@@ -11,7 +11,7 @@
 #SBATCH --cpus-per-task=4
 
 #SBATCH --partition=GPUNodes
-#SBATCH --gres=gpu:4
+#SBATCH --gres=gpu:1
 #SBATCH --gres-flags=enforce-binding
 
 container=/logiciels/containerCollections/CUDA10/tf2-NGC-20-03-py3.sif
@@ -19,9 +19,8 @@ python=$HOME/SSG/env/bin/python
 script=$HOME/SSG/src/SegSRGAN-remake/run_model.py
 
 mri=/projets/srm4bmri/segsrgan/dataset/lr/lr1010.nii.gz
-output=/projets/srm4bmri/segsrgan/outputs/results/
-model=/projets/srm4bmri/segsrgan/training_folder/checkpoints/training_10_epochs/
+model=train_mri_srgan
 
 module purge
 module load singularity/3.0.3
-srun singularity exec ${container} ${python} ${script} -n run_model -f ${mri} -o ${output} -m ${model} -ps 64 64 64
+srun singularity exec ${container} ${python} ${script} -n run_model -f ${mri} -m ${model}

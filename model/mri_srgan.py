@@ -84,9 +84,11 @@ class MRI_SRGAN():
                  logs_folder : str,
                  make_generator_model=make_generator_model,
                  make_discriminator_model=None,
+                 patchsize=(32, 32, 32),
                  *args, **kwargs):
         
         self.name = name
+        self.patchsize = patchsize
         
         if K.backend() == "tensorflow":
             from tensorflow.python.client import device_lib
@@ -109,7 +111,7 @@ class MRI_SRGAN():
         
         self.optimizer_gen = keras.optimizers.Adam()
 
-        self.generator = make_generator_model("gen", (32, 32, 32), 4)
+        self.generator = make_generator_model("gen", self.patchsize, 4)
         self.generator.summary()
         
         
@@ -123,7 +125,13 @@ class MRI_SRGAN():
         self.load_checkpoint()
         
         self.summary_writer = tf.summary.create_file_writer(self.logs_folder)
-        
+    
+    def predict(self, patches):
+        return self.generator(patches, training=False)
+    
+    def load_weights(self):
+        self.generator.load_weights(join(self.weight_folder, self.name+".h5"))
+    
     def load_checkpoint(self):
         if self.checkpoint_manager.latest_checkpoint:
             self.checkpoint.restore(self.checkpoint_manager.latest_checkpoint)
