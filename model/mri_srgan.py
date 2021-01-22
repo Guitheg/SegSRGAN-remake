@@ -1,5 +1,5 @@
 
-from run_model import test_by_patch
+from utils.patches import test_by_patch
 import numpy as np
 from model.utils import charbonnier_loss
 from layers.reflect_padding import ReflectPadding3D

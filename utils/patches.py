@@ -74,3 +74,33 @@ def make_a_patches_dataset(mri_lr_hr_seg_list : list, patchsize : tuple, stride 
         dataset_label_patches.append(label_patches)
         
     return dataset_lr_patches, dataset_label_patches
+
+def test_by_patch(mri_input : MRI, model : object, step = 4):  
+    
+    # Init temp
+    mri_arr_input = mri_input.get_img_array()
+    height, width, depth = mri_arr_input.shape
+    tmp_img = np.zeros_like(mri_arr_input)
+    # TempSeg = np.zeros_like(mri_arr_input)
+    weighted_img = np.zeros_like(mri_arr_input)
+
+    for idx in range(0, height - model.patchsize[0]+1, step):
+        for idy in range(0, width - model.patchsize[1]+1, step):
+            for idz in range(0, depth - model.patchsize[2]+1, step):  
+
+                # Cropping image
+                patch_input = mri_arr_input[idx:idx+model.patchsize[0], idy:idy+model.patchsize[1], idz:idz+model.patchsize[2]] 
+                patch_input = patch_input.reshape(1,1,model.patchsize[0], model.patchsize[1], model.patchsize[2]).astype(np.float32)
+                predict_patch =  model.predict(patch_input)
+                
+                # Adding
+                tmp_img[idx:idx+model.patchsize[0], idy:idy+model.patchsize[1], idz:idz+model.patchsize[2]] += predict_patch[0,0,:,:,:]
+                # TempSeg [idx:idx+self.patch,idy:idy+self.patch,idz:idz+self.patch] += PredictPatch[0,1,:,:,:]
+                weighted_img[idx:idx+model.patchsize[0], idy:idy+model.patchsize[1], idz:idz+model.patchsize[2]] += np.ones_like(predict_patch[0,0,:,:,:])
+            
+    sr_mri_array = tmp_img/weighted_img
+    sr_mri = MRI()
+    sr_mri.load_from_array(sr_mri_array, mri_input.get_resolution(), mri_input.get_origin(), mri_input.get_direction())
+    # EstimatedSegmentation = TempSeg/WeightedImage
+    
+    return sr_mri
