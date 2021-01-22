@@ -1,7 +1,6 @@
 
-from math import ceil
 import numpy as np
-from model.utils import charbonnier_loss, ProgressBar
+from model.utils import charbonnier_loss
 from layers.reflect_padding import ReflectPadding3D
 from layers.instance_normalization import InstanceNormalization3D
 from os.path import join, normpath, isdir
@@ -122,9 +121,7 @@ class MRI_SRGAN():
                                                              directory=self.checkpoint_folder,
                                                              max_to_keep=3)
         
-        self.load_checkpoint()
-        
-        self.summary_writer = tf.summary.create_file_writer(self.logs_folder)
+        # self.summary_writer = tf.summary.create_file_writer(self.logs_folder)
     
     def predict(self, patches):
         return self.generator(patches, training=False)
@@ -155,32 +152,47 @@ class MRI_SRGAN():
         self.optimizer_gen.apply_gradients(zip(gradients, self.generator.trainable_variables))
         
         return losses, total_loss
+    
+    def evaluation_step_generator(self, batch_lr, batch_hr):
+        batch_sr = self.generator(batch_lr, training=False)
+
+        losses = {}
+        losses['val_charbonnier'] = charbonnier_loss(batch_hr, batch_sr)
+        
+        total_loss = tf.add_n([l for l in losses.values()])
+            
+        return losses, total_loss
 
     def train_step(self, batch_lr, batch_hr):
         return self.train_step_generator(batch_lr, batch_hr)
         
     def train(self, dataset, n_epochs):
+        self.load_checkpoint()
         remaining_epochs = n_epochs - self.checkpoint.epoch.numpy()
-        for _ in range(remaining_epochs):
-            print(f"Epoch : {self.checkpoint.epoch.numpy()+1}/{n_epochs}")
-            for step, (lr, hr_seg) in enumerate(dataset('Train')):
-                # first channel : hr
-                losses, total_loss = self.train_step_generator(lr, hr_seg)
-                print(f"Step : {step:04d}/{dataset.__len__('Train')} - total_loss : {total_loss:04f}")
-                if step % (int(ceil(dataset.__len__('Train')/100))) == 0:    
-                    with self.summary_writer.as_default():
-                        tf.summary.scalar('loss_G/total_loss', total_loss, step=step)
-
-                        for k, l in losses.items():
-                            tf.summary.scalar('loss_G/{}'.format(k), l, step=step)
-                        
+        losses = []
+        val_losses = []
+        for epoch_index in range(remaining_epochs):
+            for step, (lr, label) in enumerate(dataset('Train')):
+                _, total_loss = self.train_step_generator(lr, label)
+                losses.append(total_loss)
+            for step, (lr, label) in enumerate(dataset('Val')):
+                _, val_total_loss = self.evaluation_step_generator(lr, label)
+                val_losses.append(val_total_loss)
+            print(f"Epoch : {epoch_index:04d}/{remaining_epochs} - mean total_loss : {np.mean(losses):04f} - mean val_total_loss : {np.mean(val_losses):04f}")
             self.checkpoint_manager.save()
-            print("\nSave ckpt file at {}".format(self.checkpoint_manager.latest_checkpoint))     
+            print("\n   *save ckpt file at {}".format(self.checkpoint_manager.latest_checkpoint))     
             self.checkpoint.epoch.assign_add(1)
             
         self.generator.save_weights(join(self.weight_folder, self.name+".h5"))
         print("\nSave weights file at {}".format(join(self.weight_folder, self.name+".h5")))
-        print("Training done !") 
+        print("Training done !")
+        
+    def evaluate(self, dataset):
+        test_losses = []
+        for step, (lr, label) in enumerate(dataset('Test')):
+                _, total_loss = self.evaluation_step_generator(lr, label)
+                test_losses.append(total_loss)
+        print(f"Test evaluation loss : {np.mean(test_losses):04f}")
                 
                 
         

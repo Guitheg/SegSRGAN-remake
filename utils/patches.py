@@ -44,16 +44,16 @@ def array_to_patches(arr, patch_shape=(3, 3, 3), extraction_step=1, normalizatio
     print('%.2d patches have been extracted' % patches.shape[0])
     return patches
   
-def create_patches_from_mri(lr : MRI, hr : MRI, seg : MRI, patchsize : tuple, stride : int, normalization : bool = False, merge_hr_seg : bool = True):
+def create_patches_from_mri(lr : MRI, hr : MRI, patchsize : tuple, stride : int, normalization : bool = False, seg : MRI = None):
   
     # lr_patches_shape : (number_patches, 1, patchsize[0], patchsize[1], patchsize[2])
     lr_patches = array_to_patches(lr(), patch_shape=patchsize, extraction_step=stride, normalization=normalization)
     lr_patches = np.reshape(lr_patches, (-1, 1, patchsize[0], patchsize[1], patchsize[2]))
     hr_patches = array_to_patches(hr(), patch_shape=patchsize, extraction_step=stride, normalization=normalization)
-    seg_patches = array_to_patches(seg(), patch_shape=patchsize, extraction_step=stride, normalization=normalization)
     
-    if merge_hr_seg:
+    if not seg is None:
         # label_patches_shape : (number_patches, 2, patchsize[0], patchsize[1], patchsize[2])
+        seg_patches = array_to_patches(seg(), patch_shape=patchsize, extraction_step=stride, normalization=normalization)
         label_patches = concatenante_hr_seg(hr_patches, seg_patches)
     else:
         # label_patches_shape : (number_patches, 1, patchsize[0], patchsize[1], patchsize[2])

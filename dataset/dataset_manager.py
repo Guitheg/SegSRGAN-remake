@@ -94,14 +94,14 @@ class MRI_Dataset():
                                     patchsize,
                                     step,
                                     percent_valmax,
-                                    merge_hr_seg = False,
+                                    segmentation = False,
                                     save_lr = False, *args, **kwargs):
         if type(patchsize) == tuple:
             patchsize = patchsize
         else:
             patchsize = (patchsize, patchsize, patchsize)
         
-        train_fp_list, val_fp_list, test_fp_list = get_hr_seg_filepath_list(mri_folder, csv_listfile_path, self.cfg)
+        train_fp_list, val_fp_list, test_fp_list = get_hr_seg_filepath_list(mri_folder, csv_listfile_path, self.cfg, segmentation=segmentation)
         
         self._save_data_base_batchs(batchsize,
                                     lr_downscale_factor,
@@ -111,7 +111,7 @@ class MRI_Dataset():
                                     train_fp_list, 
                                     self.train_batch_folder_path, 
                                     base = self.cfg.get('Base_Header_Values','Train'), 
-                                    merge_hr_seg=merge_hr_seg,
+                                    segmentation=segmentation,
                                     save_lr=save_lr)
         self._save_data_base_batchs(batchsize,
                                     lr_downscale_factor,
@@ -121,7 +121,7 @@ class MRI_Dataset():
                                     val_fp_list, 
                                     self.val_batch_folder_path, 
                                     base = self.cfg.get('Base_Header_Values','Validation'),
-                                    merge_hr_seg=merge_hr_seg,
+                                    segmentation=segmentation,
                                     save_lr=save_lr)
         self._save_data_base_batchs(batchsize,
                                     lr_downscale_factor,
@@ -131,7 +131,7 @@ class MRI_Dataset():
                                     test_fp_list, 
                                     self.test_batch_folder_path, 
                                     base = self.cfg.get('Base_Header_Values','Test'), 
-                                    merge_hr_seg=merge_hr_seg,
+                                    segmentation=segmentation,
                                     save_lr=save_lr)
         
         self.initialize = True
@@ -145,7 +145,7 @@ class MRI_Dataset():
                                data_filespath_list : list, 
                                data_base_folder : str, 
                                base : str,
-                               merge_hr_seg = False,
+                               segmentation = False,
                                save_lr = False, 
                                *args, **kwargs):
         batch_index = 0
@@ -156,13 +156,19 @@ class MRI_Dataset():
         for data_hr, data_seg in data_filespath_list:
 
             lr_img, hr_img, scaling_factor = lr_from_hr(data_hr, lr_downscale_factor, percent_valmax)
+            
             print(f"LR mri : {lr_img}")
             print(f"HR mri : {hr_img}")
+            
             if save_lr:
                 lr_img.save_mri(join(self.batch_folder, "LR_"+basename(hr_img.filepath)))
-            seg_img = read_seg(data_seg, scaling_factor)
+                
+            seg_img = None
+            if segmentation:
+                seg_img = read_seg(data_seg, scaling_factor)
+                print(f"SEG mri : {seg_img}")
             
-            lr_gen_input, label_dis_input = create_patches_from_mri(lr_img, hr_img, seg_img, patchsize, step, merge_hr_seg = merge_hr_seg)
+            lr_gen_input, label_dis_input = create_patches_from_mri(lr_img, hr_img, patchsize, step, seg = seg_img)
             print("lr patches shape : ", lr_gen_input.shape, " label patches shape : ", label_dis_input.shape)
             
             # shuffle lr_gen and hr_seg_dis here
