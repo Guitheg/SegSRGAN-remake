@@ -19,7 +19,7 @@ python=$HOME/SSG/env/bin/python
 script=$HOME/SSG/src/SegSRGAN-remake/train.py
 
 training_name=train_mri_srgan
-dataset=test_dataset
+dataset=3x1_dataset
 
 module purge
 module load singularity/3.0.3
