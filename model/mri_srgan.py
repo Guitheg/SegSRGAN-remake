@@ -1,9 +1,10 @@
 
+from run_model import test_by_patch
 import numpy as np
 from model.utils import charbonnier_loss
 from layers.reflect_padding import ReflectPadding3D
 from layers.instance_normalization import InstanceNormalization3D
-from os.path import join, normpath, isdir
+from os.path import join, normpath, isdir, basename
 from utils.files import get_and_create_dir
 from tensorflow import keras
 import tensorflow as tf
@@ -166,7 +167,7 @@ class MRI_SRGAN():
     def train_step(self, batch_lr, batch_hr):
         return self.train_step_generator(batch_lr, batch_hr)
         
-    def train(self, dataset, n_epochs):
+    def train(self, dataset, n_epochs, mri_to_visualize=None, output_dir=None):
         self.load_checkpoint()
         remaining_epochs = n_epochs - self.checkpoint.epoch.numpy()
         losses = []
@@ -178,11 +179,15 @@ class MRI_SRGAN():
             for step, (lr, label) in enumerate(dataset('Val')):
                 _, val_total_loss = self.evaluation_step_generator(lr, label)
                 val_losses.append(val_total_loss)
-            print(f"Epoch : {epoch_index:04d}/{remaining_epochs} - mean total_loss : {np.mean(losses):04f} - mean val_total_loss : {np.mean(val_losses):04f}")
+            print(f"Epoch : {epoch_index+1:04d}/{remaining_epochs} - mean total_loss : {np.mean(losses):04f} - mean val_total_loss : {np.mean(val_losses):04f}")
             self.checkpoint_manager.save()
             print("\n   *save ckpt file at {}".format(self.checkpoint_manager.latest_checkpoint))     
             self.checkpoint.epoch.assign_add(1)
-            
+            if mri_to_visualize:
+                if output_dir is None:
+                    raise Exception("You should specify the directory of output")
+                sr_mri = test_by_patch(mri_to_visualize, self)
+                sr_mri.save_mri(join(output_dir, self.name, self.name+"_epoch_"+str(epoch_index+1)+"_SR_"+basename(mri_to_visualize.filepath)))
         self.generator.save_weights(join(self.weight_folder, self.name+".h5"))
         print("\nSave weights file at {}".format(join(self.weight_folder, self.name+".h5")))
         print("Training done !")
@@ -193,6 +198,8 @@ class MRI_SRGAN():
                 _, total_loss = self.evaluation_step_generator(lr, label)
                 test_losses.append(total_loss)
         print(f"Test evaluation loss : {np.mean(test_losses):04f}")
+
+            
                 
                 
         

@@ -14,6 +14,7 @@ def main():
     parser.add_argument("--training_name", "-n", help="the training name, for recovering", required=True)
     parser.add_argument("--dataset_name", "-d", help="name of the dataset", required=True)
     parser.add_argument('--n_epochs','-e', help="number of epochs", default=1)
+    parser.add_argument('--mri_to_test', '-t', help="mri to test")
     
     args = parser.parse_args()
     
@@ -22,7 +23,7 @@ def main():
         raise Exception("You must run 'build_env.py -f <home_folder>'")
     config.read(CONFIG_INI_FILEPATH)
     
-    print(f"train.py -n {args.training_name} -d {args.dataset_name} -e {args.n_epochs}")
+    print(f"train.py -n {args.training_name} -d {args.dataset_name} -e {args.n_epochs} -t {args.mri_to_test}")
 
     home_folder = config.get('Path', 'Home')
     
@@ -35,9 +36,18 @@ def main():
     except Exception:
         raise Exception(f"Home folder has not been set. You must run 'build_env.py -f <home_folder>' script before launch the training")
     
+    if args.mri_to_test:
+        if not isfile(args.mri_to_test):
+            raise Exception(f'{args.mri_to_test} is unknown, is not a file')
+        else:
+            mri_to_test = args.mri_to_test
+    else:
+        mri_to_test = None
+    
     training_name = args.training_name
     n_epochs = int(args.n_epochs)
     batch_repo_path = join(batch_repo_path, args.dataset_name)
+    
     if not isdir(batch_repo_path):
         raise Exception(f"{batch_repo_path} is unknown. Your must run 'build_dataset.py -n <dataset_name> -csv <csvlistfile_path>' to create the wanted dataset")
     
@@ -56,7 +66,7 @@ def main():
     
     print("Training...")
     
-    segsrgan_trainer.train(dataset, n_epochs=n_epochs)
+    segsrgan_trainer.train(dataset, n_epochs=n_epochs, mri_to_visualize=mri_to_test, output_dir=out_repo_path)
     
 if __name__ == "__main__":
     main()
