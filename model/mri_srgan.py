@@ -183,7 +183,7 @@ class MRI_SRGAN():
                 val_losses.append(val_total_loss)
             print(f"Epoch : {epoch_index+1:04d}/{remaining_epochs} - mean total_loss : {np.mean(losses):04f} - mean val_total_loss : {np.mean(val_losses):04f}")
             self.checkpoint_manager.save()
-            print("\n   *save ckpt file at {}".format(self.checkpoint_manager.latest_checkpoint))     
+            print("*save ckpt file at {}\n".format(self.checkpoint_manager.latest_checkpoint))     
             self.checkpoint.epoch.assign_add(1)
             if mri_to_visualize:
                 if output_dir is None:

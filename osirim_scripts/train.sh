@@ -24,4 +24,4 @@ dataset=complete_dataset
 
 module purge
 module load singularity/3.0.3
-srun singularity exec ${container} ${python} ${script} -n ${training_name} -d ${dataset} -e 30 -t ${mri_test}
+srun singularity exec ${container} ${python} ${script} -n ${training_name} -d ${dataset} -e 60 -t ${mri_test}
