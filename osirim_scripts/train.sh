@@ -1,8 +1,8 @@
 #!/bin/sh
 
-#SBATCH --job-name=TRAIN_MRI_SRGAN
-#SBATCH --output=/projets/srm4bmri/outputs/TRAIN_MRI_SRGAN.out
-#SBATCH --error=/projets/srm4bmri/outputs/TRAIN_MRI_SRGAN.err
+#SBATCH --job-name=TRAIN_MAE_LOSS
+#SBATCH --output=/projets/srm4bmri/outputs/TRAIN_MAE_LOSS.out
+#SBATCH --error=/projets/srm4bmri/outputs/TRAIN_MAE_LOSS.err
 
 #SBATCH --mail-type=END   
 #SBATCH --mail-user=guigobin@gmail.com
@@ -19,7 +19,7 @@ python=$HOME/SSG/env/bin/python
 script=$HOME/SSG/src/SegSRGAN-remake/train.py
 
 mri_test=/projets/srm4bmri/segsrgan/training_folder/batchs/complete_dataset/LR_hr1010.nii.gz
-training_name=train_mri_srgan
+training_name=train_mae_loss
 dataset=complete_dataset
 
 module purge

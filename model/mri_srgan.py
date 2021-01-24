@@ -145,7 +145,7 @@ class MRI_SRGAN():
             batch_sr = self.generator(batch_lr, training=True)
 
             losses = {}
-            losses['charbonnier'] = charbonnier_loss(batch_hr, batch_sr)
+            losses['charbonnier'] = keras.losses.mae(batch_hr, batch_sr)
             
             total_loss = tf.add_n([l for l in losses.values()])
             
@@ -171,17 +171,16 @@ class MRI_SRGAN():
         if output_dir:
             output_dir = get_and_create_dir(join(output_dir, self.name))
         self.load_checkpoint()
-        remaining_epochs = n_epochs - self.checkpoint.epoch.numpy()
         losses = []
         val_losses = []
-        for epoch_index in range(remaining_epochs):
+        for epoch_index in range(self.checkpoint.epoch.numpy(), n_epochs):
             for step, (lr, label) in enumerate(dataset('Train')):
                 _, total_loss = self.train_step_generator(lr, label)
                 losses.append(total_loss)
             for step, (lr, label) in enumerate(dataset('Val')):
                 _, val_total_loss = self.evaluation_step_generator(lr, label)
                 val_losses.append(val_total_loss)
-            print(f"Epoch : {epoch_index+1:04d}/{remaining_epochs} - mean total_loss : {np.mean(losses):04f} - mean val_total_loss : {np.mean(val_losses):04f}")
+            print(f"Epoch : {epoch_index+1:04d}/{n_epochs} - mean total_loss : {np.mean(losses):04f} - mean val_total_loss : {np.mean(val_losses):04f}")
             self.checkpoint_manager.save()
             print("*save ckpt file at {}\n".format(self.checkpoint_manager.latest_checkpoint))     
             self.checkpoint.epoch.assign_add(1)

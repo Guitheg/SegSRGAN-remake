@@ -16,7 +16,8 @@ def charbonnier_loss(y_true, y_pred):
     """
     epsilon = 1e-3
     diff = y_true - y_pred
-    loss = K.mean(K.sqrt(K.square(diff)+epsilon*epsilon), axis=-1)
+    racine = K.sqrt(K.square(diff)+epsilon*epsilon)
+    loss = K.mean(racine, axis=-1)
     return K.mean(loss)
 
 def wasserstein_loss(y_true, y_pred):

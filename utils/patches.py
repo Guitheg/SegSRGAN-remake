@@ -98,7 +98,7 @@ def test_by_patch(mri_input : MRI, model : object, step = 4):
                 # TempSeg [idx:idx+self.patch,idy:idy+self.patch,idz:idz+self.patch] += PredictPatch[0,1,:,:,:]
                 weighted_img[idx:idx+model.patchsize[0], idy:idy+model.patchsize[1], idz:idz+model.patchsize[2]] += np.ones_like(predict_patch[0,0,:,:,:])
             
-    sr_mri_array = tmp_img/weighted_img
+    sr_mri_array = np.array(tmp_img)/np.array(weighted_img)
     sr_mri = MRI()
     sr_mri.load_from_array(sr_mri_array, mri_input.get_resolution(), mri_input.get_origin(), mri_input.get_direction())
     # EstimatedSegmentation = TempSeg/WeightedImage
