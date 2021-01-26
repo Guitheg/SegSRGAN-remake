@@ -145,7 +145,7 @@ class MRI_SRGAN():
             batch_sr = self.generator(batch_lr, training=True)
 
             losses = {}
-            losses['charbonnier'] = keras.losses.mae(batch_hr, batch_sr)
+            losses['charbonnier'] = np.mean(keras.losses.mae(batch_hr, batch_sr))
             
             total_loss = tf.add_n([l for l in losses.values()])
             
