@@ -62,10 +62,6 @@ class Activation_SegSRGAN(Layer):
     def compute_output_shape(self, input_shapes):
         return input_shapes[0]
     
-
-
-
-  
 class LR_Adam(Optimizer):
     """
     https://ksaluja15.github.io/Learning-Rate-Multipliers-in-Keras/

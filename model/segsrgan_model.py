@@ -1,7 +1,9 @@
 
 from utils.files import get_and_create_dir
 from dataset.dataset_manager import MRI_Dataset
-from model.utils import LR_Adam, ReflectPadding3D, InstanceNormalization3D, Activation_SegSRGAN, gradient_penalty_loss, wasserstein_loss, charbonnier_loss
+from model.utils import LR_Adam, Activation_SegSRGAN, gradient_penalty_loss, wasserstein_loss, charbonnier_loss
+from layers.reflect_padding import ReflectPadding3D
+from layers.instance_normalization import InstanceNormalization3D
 import numpy as np
 from os.path import join, normpath, isdir, basename
 from functools import partial
