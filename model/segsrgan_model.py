@@ -7,10 +7,10 @@ from layers.instance_normalization import InstanceNormalization3D
 import numpy as np
 from os.path import join, normpath, isdir, basename
 from functools import partial
-from keras.models import Model
-from keras.layers import Input, LeakyReLU, Reshape, Conv3D, Add, UpSampling3D, Activation
-from keras.optimizers import Adam
-from keras.initializers import lecun_normal
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, LeakyReLU, Reshape, Conv3D, Add, UpSampling3D, Activation
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.initializers import lecun_normal
 import tensorflow as tf
 from keras import backend as K
 from os.path import join, normpath, isfile
