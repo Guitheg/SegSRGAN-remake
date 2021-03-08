@@ -7,9 +7,11 @@ from utils.files import get_environment
 from main import CONFIG_INI_FILEPATH
 from os.path import normpath, join, isfile, isdir
 import argparse
+from tensorflow.keras import backend as K
 
 def main():
     print([i.name for i in iter_modules()])
+    print(f"GPU : {K.tensorflow_backend._get_available_gpus()}")
     
     parser = argparse.ArgumentParser()
     parser.add_argument("--training_name", "-n", help="the training name, for recovering", required=True)

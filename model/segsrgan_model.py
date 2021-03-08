@@ -185,8 +185,12 @@ class SegSRGAN():
                  max_checkpoints_to_keep : int = 2,
                  *args, **kwargs):
 
-        self.discriminator = self.make_discriminator_model(shape, dis_kernel, *args, **kwargs)  
         self.generator = self.make_generator_model(shape, gen_kernel, *args, **kwargs)
+        self.generator.summary()
+        
+        self.discriminator = self.make_discriminator_model(shape, dis_kernel, *args, **kwargs)  
+        self.discriminator.summary()
+        
         self.generator_trainer = self.make_generator_trainer(shape, lr_genmodel, lambda_adv, lambda_rec)
         self.discriminator_trainer = self.make_discriminator_trainer(shape, lr_dismodel, lambda_gp)
         
@@ -224,7 +228,6 @@ class SegSRGAN():
             dataset : MRI_Dataset,
             n_epochs : int = 1,
             *args, **kwargs):
-        print(f"GPU : {K.tensorflow_backend._get_available_gpus()}")
 
         for epoch in range(0, n_epochs):
             print(f"Epoch {epoch+1} / {n_epochs} : ")
