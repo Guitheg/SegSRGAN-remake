@@ -12,7 +12,7 @@ from tensorflow.keras.layers import Input, LeakyReLU, Reshape, Conv3D, Add, UpSa
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.initializers import lecun_normal
 import tensorflow as tf
-from keras import backend as K
+from tensorflow.keras import backend as K
 from os.path import join, normpath, isfile
 
 def resnet_blocks(input_res, kernel, name):
