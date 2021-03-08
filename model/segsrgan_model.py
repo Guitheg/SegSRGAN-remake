@@ -210,8 +210,6 @@ class SegSRGAN():
             self.logs_folder = get_and_create_dir(normpath(join(logs_folder, name)))      
         
         self.checkpoint = tf.train.Checkpoint(epoch=tf.Variable(0, name='epoch'),
-                                              optimizer_G=self.optimizer_gen,
-                                              optimizer_D=self.optimizer_dis,
                                               generator=self.generator,
                                               discriminator=self.discriminator)
         
