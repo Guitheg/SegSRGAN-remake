@@ -5,7 +5,7 @@ import time
 from tensorflow.python.ops import array_ops
 from tensorflow.keras.layers import Layer
 from tensorflow.keras.optimizers import Optimizer
-from tensorflow.keras.legacy import interfaces
+# from tensorflow.keras.legacy import interfaces
 from shutil import get_terminal_size
 import tensorflow.keras.backend as K
 import numpy as np
@@ -95,7 +95,7 @@ class LR_Adam(Optimizer):
         self.initial_decay = decay
         self.lr_multipliers = multipliers              # Multiplier for weights [0,2,4,6,...] and bias [1,3,5,7,...]
         
-    @interfaces.legacy_get_updates_support
+    # @interfaces.legacy_get_updates_support
     def get_updates(self, loss, params):
         grads = self.get_gradients(loss, params)
         self.updates = [K.update_add(self.iterations, 1)]
