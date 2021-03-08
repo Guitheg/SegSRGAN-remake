@@ -20,7 +20,7 @@ script=$HOME/SSG/src/SegSRGAN-remake/train.py
 
 mri_test=/projets/srm4bmri/segsrgan/training_folder/batchs/seg_sr_dataset/LR_hr1010.nii.gz
 training_name=testing_train_seg_sr
-dataset=complete_dataset
+dataset=seg_sr_dataset
 
 module purge
 module load singularity/3.0.3
