@@ -174,7 +174,7 @@ class SegSRGAN():
                  checkpoint_folder : str,
                  weight_folder : str,
                  logs_folder : str,
-                 shape : tuple = (32, 32, 32),
+                 shape : tuple = (64, 64, 64),
                  lambda_rec : float = 1,
                  lambda_adv : float = 0.001,
                  lambda_gp : float = 10,
