@@ -216,7 +216,7 @@ class SegSRGAN():
         self.checkpoint_manager = tf.train.CheckpointManager(checkpoint=self.checkpoint,
                                                              directory=self.checkpoints_folder,
                                                              max_to_keep=3)
-        self.checkpoint_manager.restore_or_initialize()
+        self.checkpoint_manager.checkpoint.restore()
         
     def predict(self, patches):
         sr_seg = self.generator.predict(patches)
