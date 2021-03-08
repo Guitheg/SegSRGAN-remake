@@ -80,7 +80,7 @@ class LR_Adam(Optimizer):
 
     def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999,
                  epsilon=1e-8, decay=0., multipliers=None, **kwargs):
-        super(LR_Adam, self).__init__(**kwargs)
+        super(LR_Adam, self).__init__(name="LR_Adam", **kwargs)
         with K.name_scope(self.__class__.__name__):
             self.iterations = K.variable(0, name='iterations')
             self.lr = K.variable(lr, name='lr')
