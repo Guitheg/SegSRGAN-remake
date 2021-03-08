@@ -171,7 +171,7 @@ class SegSRGAN():
     
     def __init__(self,
                  name : str,
-                 checkpoints_folder : str,
+                 checkpoint_folder : str,
                  weight_folder : str,
                  logs_folder : str,
                  shape : tuple = (32, 32, 32),
@@ -190,10 +190,10 @@ class SegSRGAN():
         self.generator_trainer = self.make_generator_trainer(shape, lr_genmodel, lambda_adv, lambda_rec)
         self.discriminator_trainer = self.make_discriminator_trainer(shape, lr_dismodel, lambda_gp)
         
-        if not isdir(checkpoints_folder):
-            raise Exception(f"Checkpoint's folder unknow : {checkpoints_folder}")
+        if not isdir(checkpoint_folder):
+            raise Exception(f"Checkpoint's folder unknow : {checkpoint_folder}")
         else:  
-            self.checkpoints_folder = get_and_create_dir(normpath(join(checkpoints_folder, name)))
+            self.checkpoints_folder = get_and_create_dir(normpath(join(checkpoint_folder, name)))
         
         if not isdir(weight_folder):
             raise Exception(f"Weight's folder unknow : {weight_folder}")
