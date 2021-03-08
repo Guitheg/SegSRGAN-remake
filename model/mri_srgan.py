@@ -100,12 +100,12 @@ class MRI_SRGAN():
             self.checkpoint_folder = get_and_create_dir(normpath(join(checkpoint_folder, name)))
             
         if not isdir(weight_folder):
-            raise Exception(f"Checkpoint's folder unknow : {weight_folder}")
+            raise Exception(f"Weight's folder unknow : {weight_folder}")
         else:  
             self.weight_folder = get_and_create_dir(normpath(join(weight_folder, name)))
             
         if not isdir(logs_folder):
-            raise Exception(f"logs's folder unknow : {logs_folder}")
+            raise Exception(f" Logs's folder unknow : {logs_folder}")
         else:  
             self.logs_folder = get_and_create_dir(normpath(join(logs_folder, name)))    
         
