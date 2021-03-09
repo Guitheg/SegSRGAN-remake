@@ -302,6 +302,7 @@ class SegSRGAN():
             n_critic = kwargs['n_critic']
         
         for lr, hr_seg in dataset_train:
+            print(lr.shape, hr_seg.shape)
             dis_losses = self.fit_one_step_discriminator(n_critic, hr_seg, lr)
             gen_loss = self.fit_one_step_generator(hr_seg, lr)
             
