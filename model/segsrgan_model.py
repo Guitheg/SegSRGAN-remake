@@ -302,7 +302,6 @@ class SegSRGAN():
             n_critic = kwargs['n_critic']
         
         for lr, hr_seg in dataset_train:
-            print(lr.shape, hr_seg.shape)
             dis_losses = self.fit_one_step_discriminator(n_critic, hr_seg, lr)
             gen_loss = self.fit_one_step_generator(hr_seg, lr)
             
@@ -312,6 +311,7 @@ class SegSRGAN():
         fake = -real
         dummy = np.zeros([batchsize, 1], dtype=np.float32)
         dis_losses = []
+        print(batch_real.shape, batch_gen_inp.shape)
         
         for idx_dis_step in range(n_critic):
             print(f"{idx_dis_step} / {n_critic}")
