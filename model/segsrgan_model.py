@@ -1,5 +1,6 @@
 
 from utils.files import get_and_create_dir
+from utils.patches import test_by_patch
 from dataset.dataset_manager import MRI_Dataset
 from model.utils import LR_Adam, Activation_SegSRGAN, gradient_penalty_loss, wasserstein_loss, charbonnier_loss
 from layers.reflect_padding import ReflectPadding3D
@@ -216,21 +217,33 @@ class SegSRGAN():
         self.checkpoint_manager = tf.train.CheckpointManager(checkpoint=self.checkpoint,
                                                              directory=self.checkpoints_folder,
                                                              max_to_keep=3)
-        status = self.checkpoint.restore(self.checkpoint_manager.latest_checkpoint)
+        
         
     def predict(self, patches):
         sr_seg = self.generator.predict(patches)
         return sr_seg
 
-    def fit(self, 
+    def train(self, 
             dataset : MRI_Dataset,
             n_epochs : int = 1,
+            mri_to_visualize=None, 
+            output_dir=None,
             *args, **kwargs):
-
+        if output_dir:
+            output_dir = get_and_create_dir(join(output_dir, self.name))
+            
+        status = self.checkpoint.restore(self.checkpoint_manager.latest_checkpoint)
+        
         for epoch in range(0, n_epochs):
             print(f"Epoch {epoch+1} / {n_epochs} : ")
             self._fit_one_epoch(dataset('Train'), *args, **kwargs)
             self.checkpoint_manager.save()
+        
+        if mri_to_visualize:
+                if output_dir is None:
+                    raise Exception("You should specify the directory of output")
+                sr_mri = test_by_patch(mri_to_visualize, self)
+                sr_mri.save_mri(join(output_dir, self.name+"_epoch_"+str(1)+"_SR_"+basename(mri_to_visualize.filepath)))
     
     def make_generator_model(self, shape, gen_kernel, *args, **kwargs):
         return segsrgan_generator_block('Generator', shape, gen_kernel)
