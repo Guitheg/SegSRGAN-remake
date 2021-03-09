@@ -186,6 +186,7 @@ class SegSRGAN():
                  max_checkpoints_to_keep : int = 2,
                  *args, **kwargs):
 
+        self.name = name
         self.generator = self.make_generator_model(shape, gen_kernel, *args, **kwargs)
         self.generator.summary()
         
