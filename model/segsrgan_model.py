@@ -252,20 +252,14 @@ class SegSRGAN():
     def make_generator_trainer(self, shape, lr_genmodel, lambda_adv, lambda_rec, *args, **kwargs):
         input_gen = Input(shape=(1, shape[0], shape[1], shape[2]), name='input_gen')
         gen = self.generator(input_gen)
+        
+        self.discriminator.trainable = False
         fool = self.discriminator(gen)
-        fool.summary()
-        # freezing discriminator weights
-        all_parameters = 63
-        generator_parameters = 52
-        multipliers = np.ones(all_parameters)
-        for idx in range(generator_parameters, all_parameters):
-            fool.layers
         
         generator_trainer = Model(input_gen, [fool, gen])
         generator_trainer.compile(Adam(lr=lr_genmodel,
                                           beta_1=0.5,
-                                          beta_2=0.999,
-                                          multipliers=multipliers),
+                                          beta_2=0.999),
                                   loss=[wasserstein_loss, charbonnier_loss],
                                   loss_weights=[lambda_adv, lambda_rec])
         return generator_trainer
@@ -278,6 +272,7 @@ class SegSRGAN():
         fake_dis = Input(shape=(2, shape[0], shape[1], shape[2]), name='fake_dis')       
         interp_dis = Input(shape=(2, shape[0], shape[1], shape[2]), name='interp_dis') 
         
+        self.discriminator.trainable = True
         real_decision = self.discriminator(real_dis)
         fake_decision = self.discriminator(fake_dis)
         interp_decision = self.discriminator(interp_dis)
