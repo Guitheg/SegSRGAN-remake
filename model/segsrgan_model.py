@@ -321,6 +321,8 @@ class SegSRGAN():
             print("real : ", real)
             print("fake : ", fake)
             print("dummy : ", dummy)
+            print(self.discriminator_trainer)
+            self.discriminator_trainer.summary()
             # Train discriminator
             dis_loss = self.discriminator_trainer.train_on_batch([batch_real, batch_generated, batch_interpolated],
                                                                  [real, fake, dummy])
