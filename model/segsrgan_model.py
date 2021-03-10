@@ -262,7 +262,7 @@ class SegSRGAN():
             multipliers[idx]= 0.0
         
         generator_trainer = Model(input_gen, [fool, gen])
-        generator_trainer.compile(LR_Adam(lr=lr_genmodel,
+        generator_trainer.compile(Adam(lr=lr_genmodel,
                                           beta_1=0.5,
                                           beta_2=0.999,
                                           multipliers=multipliers),
