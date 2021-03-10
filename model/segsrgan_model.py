@@ -311,8 +311,6 @@ class SegSRGAN():
         fake = -real
         dummy = np.zeros([batchsize, 1], dtype=np.float32)
         dis_losses = []
-        print(batch_real)
-        print(batch_gen_inp)
         
         for idx_dis_step in range(n_critic):
             print(f"{idx_dis_step} / {n_critic}")
@@ -320,7 +318,11 @@ class SegSRGAN():
             epsilon = np.random.uniform(0, 1, size=(batchsize, 2, 1, 1, 1))
             batch_generated = self.generator.predict(batch_gen_inp)
             batch_interpolated = epsilon*batch_real + (1-epsilon)*batch_generated
-
+            print("batch hr : ", batch_real[:,0,:,:,:])
+            print("batch seg : ", batch_real[:,1,:,:,:])
+            print("batch lr : ", batch_gen_inp)
+            print("batch sr : ", batch_generated)
+            print("batch interpolated : ", batch_interpolated)
             # Train discriminator
             dis_loss = self.discriminator_trainer.train_on_batch([batch_real, batch_generated, batch_interpolated],
                                                                  [real, fake, dummy])
