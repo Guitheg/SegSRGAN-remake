@@ -319,7 +319,8 @@ class SegSRGAN():
             epsilon = np.random.uniform(0, 1, size=(batchsize, 2, 1, 1, 1))
             batch_generated = self.generator.predict(batch_gen_inp)
             batch_interpolated = epsilon*batch_real + (1-epsilon)*batch_generated
-            
+            print(batch_generated.shape)
+            print(batch_interpolated.shape)
             # Train discriminator
             dis_loss = self.discriminator_trainer.train_on_batch([batch_real, batch_generated, batch_interpolated],
                                                                  [real, fake, dummy])
