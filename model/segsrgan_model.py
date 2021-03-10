@@ -253,13 +253,13 @@ class SegSRGAN():
         input_gen = Input(shape=(1, shape[0], shape[1], shape[2]), name='input_gen')
         gen = self.generator(input_gen)
         fool = self.discriminator(gen)
-        
+        fool.summary()
         # freezing discriminator weights
         all_parameters = 63
         generator_parameters = 52
         multipliers = np.ones(all_parameters)
         for idx in range(generator_parameters, all_parameters):
-            multipliers[idx]= 0.0
+            fool.layers
         
         generator_trainer = Model(input_gen, [fool, gen])
         generator_trainer.compile(Adam(lr=lr_genmodel,
