@@ -47,6 +47,7 @@ def array_to_patches(arr, patch_shape=(3, 3, 3), extraction_step=1, normalizatio
 def create_patches_from_mri(lr : MRI, hr : MRI, patchsize : tuple, stride : int, normalization : bool = False, seg : MRI = None):
   
     # lr_patches_shape : (number_patches, 1, patchsize[0], patchsize[1], patchsize[2])
+    print("lr_patches_shape : ", lr().shape)
     lr_patches = array_to_patches(lr(), patch_shape=patchsize, extraction_step=stride, normalization=normalization)
     lr_patches = np.reshape(lr_patches, (-1, 1, patchsize[0], patchsize[1], patchsize[2]))
     hr_patches = array_to_patches(hr(), patch_shape=patchsize, extraction_step=stride, normalization=normalization)
