@@ -8,7 +8,7 @@
 #SBATCH --mail-user=guigobin@gmail.com
 
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=1
 
 #SBATCH --partition=GPUNodes
 #SBATCH --gres=gpu:1
