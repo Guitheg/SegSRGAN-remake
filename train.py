@@ -8,6 +8,7 @@ from main import CONFIG_INI_FILEPATH
 from os.path import normpath, join, isfile, isdir
 import argparse
 from tensorflow.keras import backend as K
+import sys
 
 def main():
     print([i.name for i in iter_modules()])
@@ -69,6 +70,9 @@ def main():
     print("Training...")
     
     segsrgan_trainer.train(dataset, n_epochs=n_epochs, mri_to_visualize=read_mri(mri_to_test), output_dir=result_repo_path)
+    
+    print("Training succeed !")
+    sys.exit(0)
     
 if __name__ == "__main__":
     main()
