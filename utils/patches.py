@@ -35,7 +35,9 @@ def array_to_patches(arr, patch_shape=(3, 3, 3), extraction_step=1, normalizatio
       a copying operation to obtain a list of patches:
       result.reshape([-1] + list(patch_shape))
     """
+    print(arr.shape, patch_shape, extraction_step)
     patches = extract_patches(arr, patch_shape, extraction_step)
+    print(patches.shape)
     patches = patches.reshape(-1, patch_shape[0], patch_shape[1], patch_shape[2])
     # patches = patches.reshape(patches.shape[0], -1)
     if normalization is True:
