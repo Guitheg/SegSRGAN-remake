@@ -1,7 +1,7 @@
 from configparser import ConfigParser
 from pkgutil import iter_modules
 from utils.mri_processing import read_mri
-from model.segsrgan_model import SegSRGAN
+from model.srgan_model import SRGAN
 from dataset.dataset_manager import MRI_Dataset
 from utils.files import get_environment
 from main import CONFIG_INI_FILEPATH
@@ -61,7 +61,7 @@ def main():
     print(f"Training creation : {training_name}")
     print(f"Checkpoint folder at : {join(checkpoint_repo_path, training_name)}")
     print(f"Logs_folder at : {join(indices_repo_path, training_name)}")
-    segsrgan_trainer = SegSRGAN(name = training_name,
+    segsrgan_trainer = SRGAN(name = training_name,
                                  checkpoint_folder=checkpoint_repo_path,
                                  weight_folder=weights_repo_path,
                                  logs_folder=indices_repo_path)
