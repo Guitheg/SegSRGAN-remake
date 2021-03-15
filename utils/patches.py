@@ -36,8 +36,10 @@ def array_to_patches(arr, patch_shape=(3, 3, 3), extraction_step=1, normalizatio
       result.reshape([-1] + list(patch_shape))
     """
     if arr.shape[0] < patch_shape[0] or arr.shape[1] < patch_shape[1] or arr.shape[2] < patch_shape[2]:
-        raise Exception("arr.shape : ", arr.shape, " plus petit sur un axe que patch.shape : ", patch_shape)
-        
+        l = lambda axis, shape : (int((shape-axis)//2), int((shape-axis)//2)) if axis < shape else (0,0)
+        arr = np.pad(arr, (l(arr.shape[0], patch_shape[0]), l(arr.shape[1], patch_shape[1]), l(arr.shape[2], patch_shape[2])))
+        print("array padding to avoid negative dimensions : ", arr.shape)    
+            
     patches = extract_patches(arr, patch_shape, extraction_step)
     
     patches = patches.reshape(-1, patch_shape[0], patch_shape[1], patch_shape[2])
