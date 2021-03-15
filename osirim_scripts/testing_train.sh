@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=TESTING_TRAIN_SR
 #SBATCH --output=/projets/srm4bmri/outputs/TESTING_TRAIN_SR.out
-#SBATCH --error=/projets/srm4bmri/outputs/TESTING_TRAIN_SEG_SR.err
+#SBATCH --error=/projets/srm4bmri/outputs/TESTING_TRAIN_SR.err
 
 #SBATCH --mail-type=END   
 #SBATCH --mail-user=guigobin@gmail.com

@@ -105,7 +105,6 @@ def segsrgan_generator_block(name : str, shape : tuple, kernel : int):
                     data_format='channels_first')(gennet)
     
     predictions = gennet
-    predictions = Activation_SegSRGAN()([predictions, inputs])
     
     model = Model(inputs=inputs, outputs=predictions, name=name)
     return model
