@@ -7,6 +7,7 @@ from tensorflow.keras.layers import Layer
 from tensorflow.keras.optimizers import Optimizer
 # from tensorflow.keras.legacy import interfaces
 from shutil import get_terminal_size
+import tensorflow as tf
 import tensorflow.keras.backend as K
 import numpy as np
 
