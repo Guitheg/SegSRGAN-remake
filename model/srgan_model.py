@@ -341,8 +341,8 @@ class SRGAN():
             batch_generated = self.generator.predict(batch_gen_inp)
             batch_interpolated = epsilon*batch_real + (1-epsilon)*batch_generated
             
-            print(batch_interpolated)
-            print(dummy)
+            print(batch_interpolated.shape)
+            print(dummy.shape)
             # Train discriminator
             dis_loss = self.discriminator_trainer.train_on_batch([batch_real, batch_generated, batch_interpolated],
                                                                  [real, fake, dummy])
