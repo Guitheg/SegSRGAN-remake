@@ -296,7 +296,7 @@ class SRGAN():
         real_decision = self.discriminator(real_dis)
         fake_decision = self.discriminator(fake_dis)
         interp_decision = self.discriminator(interp_dis)
-        print(interp_decision)
+        
         partial_gp_loss = partial(gradient_penalty_loss,
                           averaged_samples=interp_dis,
                           gradient_penalty_weight=lambda_gp)
@@ -340,6 +340,9 @@ class SRGAN():
             epsilon = np.random.uniform(0, 1, size=(batchsize, 1, 1, 1, 1))
             batch_generated = self.generator.predict(batch_gen_inp)
             batch_interpolated = epsilon*batch_real + (1-epsilon)*batch_generated
+            
+            print(batch_interpolated)
+            print(dummy)
             # Train discriminator
             dis_loss = self.discriminator_trainer.train_on_batch([batch_real, batch_generated, batch_interpolated],
                                                                  [real, fake, dummy])
