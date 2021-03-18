@@ -296,7 +296,7 @@ class SRGAN():
         real_decision = self.discriminator(real_dis)
         fake_decision = self.discriminator(fake_dis)
         interp_decision = self.discriminator(interp_dis)
-        
+        print(interp_decision)
         partial_gp_loss = partial(gradient_penalty_loss,
                           averaged_samples=interp_dis,
                           gradient_penalty_weight=lambda_gp)
