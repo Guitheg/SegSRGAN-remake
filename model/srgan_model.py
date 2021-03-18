@@ -219,10 +219,18 @@ class SRGAN():
                                                              directory=self.checkpoints_folder,
                                                              max_to_keep=3)
         
-        
     def predict(self, patches):
         sr_seg = self.generator.predict(patches)
         return sr_seg
+
+    def load_checkpoint(self):
+        if self.checkpoint_manager.latest_checkpoint:
+            self.checkpoint.restore(self.checkpoint_manager.latest_checkpoint)
+            print('Load ckpt from {} at epoch {}.'.format(
+                self.checkpoint_manager.latest_checkpoint, 
+                self.checkpoint.epoch.numpy()))
+        else:
+            print("Training from scratch.")
 
     def train(self, 
             dataset : MRI_Dataset,
@@ -233,18 +241,18 @@ class SRGAN():
         if output_dir:
             output_dir = get_and_create_dir(join(output_dir, self.name))
             
-        status = self.checkpoint.restore(self.checkpoint_manager.latest_checkpoint)
-        
-        for epoch in range(0, n_epochs):
+        self.load_checkpoint()
+        num_epoch = self.checkpoint.epoch.numpy()
+        for epoch in range(num_epoch, n_epochs):
             print(f"Epoch {epoch+1} / {n_epochs} : ")
             self._fit_one_epoch(dataset('Train'), *args, **kwargs)
             self.checkpoint_manager.save()
         
-        if mri_to_visualize:
-                if output_dir is None:
-                    raise Exception("You should specify the directory of output")
-                sr_mri = test_by_patch(mri_to_visualize, self)
-                sr_mri.save_mri(join(output_dir, self.name+"_epoch_"+str(1)+"_SR_"+basename(mri_to_visualize.filepath)))
+            if mri_to_visualize:
+                    if output_dir is None:
+                        raise Exception("You should specify the directory of output")
+                    sr_mri = test_by_patch(mri_to_visualize, self)
+                    sr_mri.save_mri(join(output_dir, self.name+"_epoch_"+str(epoch)+"_SR_"+basename(mri_to_visualize.filepath)))
     
     def make_generator_model(self, shape, gen_kernel, *args, **kwargs):
         return segsrgan_generator_block('Generator', shape, gen_kernel)
@@ -270,25 +278,25 @@ class SRGAN():
     def make_discriminator_trainer(self, shape, lr_dismodel, lambda_gp):
         real_dis = Input(shape=(1, shape[0], shape[1], shape[2]), name='real_dis')
         fake_dis = Input(shape=(1, shape[0], shape[1], shape[2]), name='fake_dis')       
-        # interp_dis = Input(shape=(2, shape[0], shape[1], shape[2]), name='interp_dis') 
+        interp_dis = Input(shape=(2, shape[0], shape[1], shape[2]), name='interp_dis') 
         
         self.discriminator.trainable = True
         real_decision = self.discriminator(real_dis)
         fake_decision = self.discriminator(fake_dis)
-        # interp_decision = self.discriminator(interp_dis)
+        interp_decision = self.discriminator(interp_dis)
         
-        # partial_gp_loss = partial(gradient_penalty_loss,
-        #                   averaged_samples=interp_dis,
-        #                   gradient_penalty_weight=lambda_gp)
-        # partial_gp_loss.__name__ = 'gradient_penalty'
+        partial_gp_loss = partial(gradient_penalty_loss,
+                          averaged_samples=interp_dis,
+                          gradient_penalty_weight=lambda_gp)
+        partial_gp_loss.__name__ = 'gradient_penalty'
     
-        discriminator_trainer = Model([real_dis, fake_dis], 
-                              [real_decision, fake_decision])
+        discriminator_trainer = Model([real_dis, fake_dis, interp_dis], 
+                              [real_decision, fake_decision, interp_decision])
         discriminator_trainer.compile(Adam(lr=lr_dismodel, 
                                    beta_1=0.5, 
                                    beta_2=0.999),
-                            loss=[wasserstein_loss, wasserstein_loss],
-                            loss_weights=[1, 1])
+                            loss=[wasserstein_loss, wasserstein_loss, partial_gp_loss],
+                            loss_weights=[1, 1, 1])
         return discriminator_trainer 
     
     def _fit_one_epoch(self, dataset_train, *args, **kwargs):
@@ -304,18 +312,18 @@ class SRGAN():
         batchsize = batch_real.shape[0]
         real = -np.ones([batchsize, 1], dtype=np.float32)
         fake = -real
-        # dummy = np.zeros([batchsize, 1], dtype=np.float32)
+        dummy = np.zeros([batchsize, 1], dtype=np.float32)
         dis_losses = []
         
         for idx_dis_step in range(n_critic):
             print(f"{idx_dis_step} / {n_critic}")
             # Fake image from generator and Interpolated image generation : 
-            # epsilon = np.random.uniform(0, 1, size=(batchsize, 2, 1, 1, 1))
+            epsilon = np.random.uniform(0, 1, size=(batchsize, 1, 1, 1, 1))
             batch_generated = self.generator.predict(batch_gen_inp)
-            # batch_interpolated = epsilon*batch_real + (1-epsilon)*batch_generated
+            batch_interpolated = epsilon*batch_real + (1-epsilon)*batch_generated
             # Train discriminator
-            dis_loss = self.discriminator_trainer.train_on_batch([batch_real, batch_generated],
-                                                                 [real, fake])
+            dis_loss = self.discriminator_trainer.train_on_batch([batch_real, batch_generated, batch_interpolated],
+                                                                 [real, fake, dummy])
             dis_losses.append(dis_loss)
         
         return dis_losses
