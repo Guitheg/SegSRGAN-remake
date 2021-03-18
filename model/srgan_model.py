@@ -16,6 +16,9 @@ import tensorflow as tf
 from tensorflow.keras import backend as K
 from os.path import join, normpath, isfile
 
+DIS_LOSSES = "dis_losses"
+GEN_LOSSES = "gen_losses"
+
 def resnet_blocks(input_res, kernel, name):
     gen_initializer = lecun_normal()
     in_res_1 = ReflectPadding3D(padding=1)(input_res)
@@ -232,20 +235,29 @@ class SRGAN():
         else:
             print("Training from scratch.")
 
+    def _loose_to_csv(self, losses):
+        list_dis_loss_by_epoch = [np.mean(np.mean(i[DIS_LOSSES])) for i in losses]
+        list_gen_loss_by_epoch = [np.mean(i[GEN_LOSSES]) for i in losses]
+
     def train(self, 
             dataset : MRI_Dataset,
             n_epochs : int = 1,
             mri_to_visualize=None, 
             output_dir=None,
             *args, **kwargs):
+        
         if output_dir:
             output_dir = get_and_create_dir(join(output_dir, self.name))
             
         self.load_checkpoint()
         num_epoch = self.checkpoint.epoch.numpy()
+        losses = []
         for epoch in range(num_epoch, n_epochs):
             print(f"Epoch {epoch+1} / {n_epochs} : ")
-            self._fit_one_epoch(dataset('Train'), *args, **kwargs)
+            last_losses = self._fit_one_epoch(dataset('Train'), *args, **kwargs)
+            losses.append(last_losses)
+            print("Discriminator loss mean : ", np.mean(np.mean(last_losses[DIS_LOSSES], axis=0)))
+            print("Generator loss mean : ", np.mean(last_losses[GEN_LOSSES]))
             self.checkpoint_manager.save()
         
             if mri_to_visualize:
@@ -304,10 +316,17 @@ class SRGAN():
         if 'n_critic' in kwargs:
             n_critic = kwargs['n_critic']
         
+        losses = {DIS_LOSSES : [],
+                  GEN_LOSSES : []}
+        
         for lr, hr_seg in dataset_train:
-            dis_losses = self.fit_one_step_discriminator(n_critic, hr_seg, lr)
+            dis_loss = self.fit_one_step_discriminator(n_critic, hr_seg, lr)
             gen_loss = self.fit_one_step_generator(hr_seg, lr)
+            losses[DIS_LOSSES].append(dis_loss) 
+            losses[GEN_LOSSES].append(gen_loss)
             
+        return losses
+      
     def fit_one_step_discriminator(self, n_critic, batch_real, batch_gen_inp, *args, **kwargs):
         batchsize = batch_real.shape[0]
         real = -np.ones([batchsize, 1], dtype=np.float32)
