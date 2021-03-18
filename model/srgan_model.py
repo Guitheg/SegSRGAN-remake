@@ -278,7 +278,7 @@ class SRGAN():
     def make_discriminator_trainer(self, shape, lr_dismodel, lambda_gp):
         real_dis = Input(shape=(1, shape[0], shape[1], shape[2]), name='real_dis')
         fake_dis = Input(shape=(1, shape[0], shape[1], shape[2]), name='fake_dis')       
-        interp_dis = Input(shape=(2, shape[0], shape[1], shape[2]), name='interp_dis') 
+        interp_dis = Input(shape=(1, shape[0], shape[1], shape[2]), name='interp_dis') 
         
         self.discriminator.trainable = True
         real_decision = self.discriminator(real_dis)
