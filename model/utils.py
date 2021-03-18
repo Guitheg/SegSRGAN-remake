@@ -147,7 +147,7 @@ class LR_Adam(Optimizer):
         base_config = super(LR_Adam, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
 
-def gradient_penalty_loss(y_true, y_pred, gradient_penalty_weight):
+def gradient_penalty_loss(y_true, y_pred, averaged_samples, gradient_penalty_weight):
     """Calculates the gradient penalty loss for a batch of "averaged" samples.
     In Improved WGANs, the 1-Lipschitz constraint is enforced by adding a term to the loss function
     that penalizes the network if the gradient norm moves away from 1. However, it is impossible to evaluate
@@ -165,9 +165,7 @@ def gradient_penalty_loss(y_true, y_pred, gradient_penalty_weight):
     #             - averaged_samples has dimensions (batch_size, nbr_features)
     # gradients afterwards has dimension (batch_size, nbr_features), basically
     # a list of nbr_features-dimensional gradient vectors
-    print(y_pred)
-    print(y_true)
-    gradients = K.gradients(y_pred, y_true)[0]
+    gradients = K.gradients(y_pred, averaged_samples)[0]
     # compute the euclidean norm by squaring ...
     gradients_sqr = K.square(gradients)
     #   ... summing over the rows ...
