@@ -292,7 +292,6 @@ class SRGAN():
         fake_dis = Input(shape=(1, shape[0], shape[1], shape[2]), name='fake_dis')       
         interp_dis = Input(shape=(1, shape[0], shape[1], shape[2]), name='interp_dis') 
         
-        self.discriminator.trainable = True
         real_decision = self.discriminator(real_dis)
         fake_decision = self.discriminator(fake_dis)
         interp_decision = self.discriminator(interp_dis)
@@ -340,8 +339,6 @@ class SRGAN():
             epsilon = np.random.uniform(0, 1, size=(batchsize, 1, 1, 1, 1))
             batch_generated = self.generator.predict(batch_gen_inp)
             batch_interpolated = epsilon*batch_real + (1-epsilon)*batch_generated
-            
-            print(batch_interpolated.shape)
             
             # Train discriminator
             dis_loss = self.discriminator_trainer.train_on_batch([batch_real, batch_generated, batch_interpolated],
