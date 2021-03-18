@@ -165,7 +165,7 @@ def gradient_penalty_loss(y_true, y_pred, averaged_samples, gradient_penalty_wei
     #             - averaged_samples has dimensions (batch_size, nbr_features)
     # gradients afterwards has dimension (batch_size, nbr_features), basically
     # a list of nbr_features-dimensional gradient vectors
-    averaged_samples.set_shape(y_pred.shape[0], 64, 64, 64)
+    averaged_samples.set_shape((y_pred.shape[0], 64, 64, 64))
     print(y_true)
     print(y_pred)
     print(averaged_samples)
