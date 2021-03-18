@@ -193,7 +193,6 @@ class SRGAN():
         self.generator = self.make_generator_model(shape, gen_kernel, *args, **kwargs)
         self.generator.summary()
         
-        self.lamp_gp = lambda_gp
         self.discriminator = self.make_discriminator_model(shape, dis_kernel, *args, **kwargs)  
         self.discriminator.summary()
         
@@ -299,7 +298,6 @@ class SRGAN():
         interp_decision = self.discriminator(interp_dis)
         
         partial_gp_loss = partial(gradient_penalty_loss,
-                                averaged_samples=interp_dis,
                                 gradient_penalty_weight=lambda_gp)
         partial_gp_loss.__name__ = 'gradient_penalty'
     
@@ -309,7 +307,7 @@ class SRGAN():
                                    beta_1=0.5, 
                                    beta_2=0.999),
                             loss=[wasserstein_loss, wasserstein_loss, partial_gp_loss],
-                            loss_weights=[1, 1, self.lamp_gp])
+                            loss_weights=[1, 1, 1])
         return discriminator_trainer 
     
     def _fit_one_epoch(self, dataset_train, *args, **kwargs):
