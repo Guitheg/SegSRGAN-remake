@@ -300,10 +300,9 @@ class SRGAN():
         print(interp_dis)
         print(interp_decision)
         
-        partial_gp_loss = partial(gradient_penalty_loss,
-                                gradient_penalty_weight=lambda_gp)
+        partial_gp_loss = lambda x,y : gradient_penalty_loss(x, y, gradient_penalty_weight=lambda_gp)
         partial_gp_loss.__name__ = 'gradient_penalty'
-    
+        
         discriminator_trainer = Model([real_dis, fake_dis, interp_dis], 
                               [real_decision, fake_decision, interp_decision])
         discriminator_trainer.compile(Adam(lr=lr_dismodel, 
