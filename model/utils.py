@@ -164,9 +164,7 @@ def gradient_penalty_loss(y_true, y_pred, averaged_samples, gradient_penalty_wei
     #             - averaged_samples has dimensions (batch_size, nbr_features)
     # gradients afterwards has dimension (batch_size, nbr_features), basically
     # a list of nbr_features-dimensional gradient vectors
-    print(y_pred)
-    
-    print(averaged_samples.shape)
+    print(averaged_samples.numpy())
     gradients = K.gradients(y_pred, averaged_samples)[0]
     print(gradients)
     # compute the euclidean norm by squaring ...
