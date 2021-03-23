@@ -292,6 +292,7 @@ class SRGAN():
         fake_dis = Input(shape=(1, shape[0], shape[1], shape[2]), name='fake_dis')       
         interp_dis = Input(shape=(1, shape[0], shape[1], shape[2]), name='interp_dis') 
         
+        self.discriminator.trainable = True
         real_decision = self.discriminator(real_dis)
         fake_decision = self.discriminator(fake_dis)
         interp_decision = self.discriminator(interp_dis)
@@ -301,13 +302,10 @@ class SRGAN():
                                   gradient_penalty_weight=lambda_gp)
         partial_gp_loss.__name__ = 'gradient_penalty'
         
-        discriminator_trainer = Model([real_dis, fake_dis, interp_dis], 
-                              [real_decision, fake_decision, interp_decision])
-        discriminator_trainer.compile(Adam(lr=lr_dismodel, 
-                                   beta_1=0.5, 
-                                   beta_2=0.999),
-                            loss=[wasserstein_loss, wasserstein_loss, partial_gp_loss],
-                            loss_weights=[1, 1, 1])
+        discriminator_trainer = Model([real_dis, fake_dis, interp_dis], [real_decision, fake_decision, interp_decision])
+        discriminator_trainer.compile(  Adam(lr=lr_dismodel, beta_1=0.5, beta_2=0.999),
+                                        loss=[wasserstein_loss, wasserstein_loss, partial_gp_loss],
+                                        loss_weights=[1, 1, 1])
         return discriminator_trainer 
     
     def _fit_one_epoch(self, dataset_train, *args, **kwargs):
@@ -335,9 +333,11 @@ class SRGAN():
         
         for idx_dis_step in range(n_critic):
             print(f"{idx_dis_step} / {n_critic}")
+            batch_generated = self.generator.predict(batch_gen_inp)
+            
             # Fake image from generator and Interpolated image generation : 
             epsilon = np.random.uniform(0, 1, size=(batchsize, 1, 1, 1, 1))
-            batch_generated = self.generator.predict(batch_gen_inp)
+            
             batch_interpolated = epsilon*batch_real + (1-epsilon)*batch_generated
             
             # Train discriminator
